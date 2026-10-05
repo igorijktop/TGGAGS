@@ -1,0 +1,12 @@
+node_modules/
+dist/
+dist-electron/
+build-win/
+.tgg-cache/
+*.log
+*.tmp
+.DS_Store
+test-results/
+coverage/
+# the signed-off Windows installer is committed on purpose
+!release/
