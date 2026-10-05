@@ -103,15 +103,20 @@ export function groupBy<T, K extends string>(arr: T[], key: (t: T) => K): Record
   return out
 }
 
+// typed through a minimal structural interface so this file also type-checks in the DOM-less node project (unit tests import it)
+interface ClipboardHost { navigator?: { clipboard?: { writeText(t: string): Promise<void> } }; document?: { createElement(tag: string): { value: string; select(): void; remove(): void }; body: { appendChild(n: unknown): void }; execCommand(c: string): boolean } }
 export async function copyText(text: string): Promise<void> {
-  try { await navigator.clipboard.writeText(text) } catch {
-    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove()
+  const host = globalThis as unknown as ClipboardHost
+  try { await host.navigator!.clipboard!.writeText(text) } catch {
+    const d = host.document
+    if (!d) return
+    const ta = d.createElement('textarea'); ta.value = text; d.body.appendChild(ta); ta.select(); d.execCommand('copy'); ta.remove()
   }
 }
 
 export const uid = (p = '') => p + Math.random().toString(36).slice(2, 10)
 export const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v))
-export const isTyping = (t: EventTarget | null) => { const e = t as HTMLElement | null; return !!e && (e.tagName === 'INPUT' || e.tagName === 'TEXTAREA' || e.isContentEditable || !!e.closest?.('.monaco-editor, .xterm')) }
+export const isTyping = (t: unknown) => { const e = t as { tagName?: string; isContentEditable?: boolean; closest?(s: string): unknown } | null; return !!e && (e.tagName === 'INPUT' || e.tagName === 'TEXTAREA' || !!e.isContentEditable || !!e.closest?.('.monaco-editor, .xterm')) }
 
 export function deepMerge<T>(base: T, patch: unknown): T {
   if (patch === null || typeof patch !== 'object' || Array.isArray(patch)) return (patch === undefined ? base : patch) as T

@@ -96,7 +96,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how the pieces fit together
 
 * The debugger supports **Node.js** (including TypeScript/JavaScript run by Node). Other languages get language-server support (when the server is installed) and the terminal, but no breakpoint debugging.
 * Language servers for Python, Go, Rust and C/C++ are **not bundled** — install `pyright`, `gopls`, `rust-analyzer` or `clangd` and they are picked up. TypeScript/JavaScript intelligence is built in.
-* The installer is **unsigned**, and it is built and verified on Linux plus a static check of the produced Windows files; the CI workflow builds it on Windows as well.
+* The installer is **unsigned**. It is built on Linux and verified there: `tests/e2e/installer-wine.sh` installs it silently under Wine, checks the files, shortcuts and registry entries and uninstalls it again; `tests/e2e/packaged.mjs` boots the very `app.asar` that ships inside it (offline, with the unpacked TypeScript worker). Launching the installed Windows app itself was not possible in this environment (no real Windows), so the CI workflow also builds it on `windows-latest`. If something misbehaves on your PC, please open an issue with the log from `%APPDATA%\TGGAGS IDE\logs`.
 * AI features need a provider you configure; there is no hosted backend and no telemetry.
 
 ## License

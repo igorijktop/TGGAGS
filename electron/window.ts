@@ -12,7 +12,8 @@ export let mainWindow: BrowserWindow | null = null
 interface WinState { x?: number; y?: number; width: number; height: number; maximized: boolean }
 
 export function appIconPath(): string | undefined {
-  const candidates = [join(app.getAppPath(), 'resources', 'icon.png'), join(process.resourcesPath ?? '', 'icon.png'), join(__dirname, '..', 'resources', 'icon.png')]
+  // the packaged build ships a loose copy next to app.asar (native image loading cannot read inside an asar)
+  const candidates = [join(process.resourcesPath ?? '', 'icon.png'), join(app.getAppPath(), 'resources', 'icon.png'), join(__dirname, '..', 'resources', 'icon.png')]
   return candidates.find(existsSync)
 }
 
