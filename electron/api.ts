@@ -11,6 +11,7 @@ import { dataPath, userDir } from './services/paths'
 import { defaultShell } from './services/proc'
 import { mainWindow } from './window'
 import { themeById } from '../shared/themes'
+import { aiApi, agentsApi, toolsApi, skillsApi, commandsApi, memoryApi, permissionsApi, providersApi } from './ai/api'
 
 const win = (): BrowserWindow => {
   const w = mainWindow ?? BrowserWindow.getAllWindows()[0]
@@ -75,6 +76,14 @@ export function buildApi(): Api {
       async channels() { return log.channels() },
       async get(c) { return log.get(c) },
       async clear(c) { log.clear(c) }
-    }
+    },
+    ai: aiApi,
+    agents: agentsApi,
+    tools: toolsApi,
+    skills: skillsApi,
+    commands: commandsApi,
+    memory: memoryApi,
+    permissions: permissionsApi,
+    providers: providersApi
   }
 }

@@ -166,5 +166,5 @@ export const fsApi = {
     const root = workspace.root
     return root ? fileIndex.list(root) : []
   },
-  home(): string { return process.env.USERPROFILE || process.env.HOME || '' }
+  async home(): Promise<string> { return process.env.USERPROFILE || process.env.HOME || '' }
 }

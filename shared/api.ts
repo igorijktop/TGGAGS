@@ -1,6 +1,10 @@
 // The typed RPC surface between renderer and main process. Each domain is implemented in
 // `electron/api.ts`; the renderer calls it through the proxy in `src/lib/api.ts`.
-import type { Settings } from './settings'
+import type { Settings, AgentConfig, ModelInfo, PermissionRule, ProviderConfig } from './settings'
+import type {
+  AiEvent, CommandInfo, ContextItem, ContextSnapshot, FileChange, MemoryState, PermissionReply, PermissionRequest, QuestionReply, QuestionRequest,
+  SendRequest, Session, SessionMeta, SkillInfo, ToolInfo, UsageStats
+} from './ai'
 import type { FileEntry, ReadFileResult, SearchOptions, SearchResult } from './fs'
 
 export interface AppInfo {
@@ -97,6 +101,14 @@ export interface Api {
   fs: FsApi
   search: SearchApi
   output: OutputApi
+  ai: AiApi
+  agents: AgentsApi
+  tools: ToolsApi
+  skills: SkillsApi
+  commands: CommandsApi
+  memory: MemoryApi
+  permissions: PermissionsApi
+  providers: ProvidersApi
 }
 
 export interface EventMap {
@@ -108,4 +120,80 @@ export interface EventMap {
   'output:cleared': string
   'window:maximized': boolean
   'app:open-path': { path: string; isDir: boolean }
+  'ai:event': AiEvent
+}
+
+// ───────────────────────── AI engine ─────────────────────────
+
+export interface AiSessionsApi {
+  list(projectOnly?: boolean): Promise<SessionMeta[]>
+  get(id: string): Promise<Session | null>
+  create(opts?: { agent?: string }): Promise<Session>
+  delete(id: string): Promise<void>
+  rename(id: string, title: string): Promise<void>
+  fork(id: string, messageId?: string): Promise<Session | null>
+  exportMarkdown(id: string): Promise<string>
+  setConfig(id: string, cfg: { agent?: string; model?: import('./settings').ModelRef | null; mode?: import('./settings').PermissionMode; reasoning?: import('./settings').ReasoningEffort }): Promise<void>
+  stats(): Promise<UsageStats>
+  /** delete a message and everything after it (edit & resend) */
+  truncateAt(id: string, messageId: string): Promise<Session | null>
+}
+
+export interface AiChangesApi {
+  list(sessionId: string): Promise<FileChange[]>
+  undoFromTurn(sessionId: string, turnId: string | null): Promise<{ reverted: number; files: string[] }>
+  undoLastTurn(sessionId: string): Promise<{ reverted: number; files: string[] }>
+  redo(sessionId: string): Promise<{ applied: number; files: string[] }>
+  revertFile(sessionId: string, path: string): Promise<boolean>
+  accept(sessionId: string): Promise<void>
+  canRedo(sessionId: string): Promise<boolean>
+}
+
+export interface AiContextApi {
+  get(sessionId: string): Promise<ContextSnapshot | null>
+  setItems(sessionId: string, items: ContextItem[]): Promise<ContextSnapshot | null>
+  /** resolve a file/folder into a context item with an estimated token count */
+  describe(path: string): Promise<ContextItem>
+  estimate(text: string): Promise<number>
+}
+
+export interface AiApi {
+  send(req: SendRequest): Promise<{ sessionId: string }>
+  abort(sessionId: string): Promise<void>
+  running(): Promise<string[]>
+  pending(): Promise<{ permissions: PermissionRequest[]; questions: QuestionRequest[] }>
+  answerPermission(r: PermissionReply): Promise<void>
+  answerQuestion(r: QuestionReply): Promise<void>
+  compact(sessionId: string): Promise<boolean>
+  sessions: AiSessionsApi
+  changes: AiChangesApi
+  context: AiContextApi
+  /** one-off completion with the helper model (commit messages, PR text …) */
+  complete(system: string, user: string, opts?: { maxTokens?: number }): Promise<string>
+}
+
+export interface AgentsApi {
+  list(): Promise<AgentConfig[]>
+  save(agent: AgentConfig): Promise<void>
+  remove(id: string): Promise<void>
+  writeFile(agent: AgentConfig, scope: 'project' | 'global'): Promise<string>
+}
+
+export interface ToolsApi { list(): Promise<ToolInfo[]> }
+export interface SkillsApi {
+  list(): Promise<SkillInfo[]>
+  read(name: string): Promise<string>
+  create(name: string, description: string, body: string, scope: 'project' | 'global'): Promise<string>
+  remove(name: string): Promise<void>
+}
+export interface CommandsApi { list(): Promise<CommandInfo[]>; expand(name: string, args: string): Promise<{ text: string; agent?: string } | null>; save(name: string, description: string, template: string, scope: 'project' | 'global'): Promise<string> }
+export interface MemoryApi { get(): Promise<MemoryState>; set(scope: 'project' | 'global', text: string): Promise<void> }
+export interface PermissionsApi { defaults(): Promise<PermissionRule[]> }
+
+export interface ProvidersApi {
+  test(cfg: ProviderConfig, apiKey?: string): Promise<{ ok: boolean; ms: number; message: string; models?: number }>
+  discover(cfg: ProviderConfig, apiKey?: string): Promise<ModelInfo[]>
+  setKey(providerId: string, key: string): Promise<void>
+  /** which providers have a usable key (stored or from the environment) */
+  keyStatus(): Promise<Record<string, 'stored' | 'env' | 'none'>>
 }

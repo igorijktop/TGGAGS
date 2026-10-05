@@ -14,10 +14,10 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
     presetId: 'anthropic', name: 'Anthropic', protocol: 'anthropic', baseUrl: 'https://api.anthropic.com/v1', apiKeyEnv: 'ANTHROPIC_API_KEY', requiresKey: true, preset: 'anthropic',
     blurb: 'Claude models through the Anthropic Messages API.',
     models: [
-      chat('claude-fable-5-1', 'Claude Fable 5.1', 1_000_000, { vision: true, reasoning: true, maxOutput: 64000 }),
-      chat('claude-opus-5-5', 'Claude Opus 5.5', 500_000, { vision: true, reasoning: true, maxOutput: 64000 }),
-      chat('claude-sonnet-5-5', 'Claude Sonnet 5.5', 500_000, { vision: true, reasoning: true, maxOutput: 64000 }),
-      chat('claude-haiku-4-5-20251001', 'Claude Haiku 4.5', 200_000, { vision: true, maxOutput: 32000 })
+      chat('claude-fable-5-1', 'Claude Fable 5.1', 1_000_000, { vision: true, reasoning: true, maxOutput: 128000, inputPrice: 10, outputPrice: 50 }),
+      chat('claude-opus-5-5', 'Claude Opus 5.5', 1_000_000, { vision: true, reasoning: true, maxOutput: 128000, inputPrice: 4, outputPrice: 20 }),
+      chat('claude-sonnet-5-5', 'Claude Sonnet 5.5', 1_000_000, { vision: true, reasoning: true, maxOutput: 128000, inputPrice: 2, outputPrice: 10 }),
+      chat('claude-haiku-4-5', 'Claude Haiku 4.5', 200_000, { vision: true, reasoning: true, maxOutput: 64000, inputPrice: 1, outputPrice: 5 })
     ]
   },
   {
@@ -45,7 +45,7 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
   {
     presetId: 'openrouter', name: 'OpenRouter', protocol: 'openai', baseUrl: 'https://openrouter.ai/api/v1', apiKeyEnv: 'OPENROUTER_API_KEY', requiresKey: true, preset: 'openrouter',
     blurb: 'One key for hundreds of hosted models.',
-    models: [chat('anthropic/claude-sonnet-5-5', 'Claude Sonnet 5.5', 500_000, { vision: true }), chat('openai/gpt-5', 'GPT-5', 400_000, { vision: true }), chat('deepseek/deepseek-chat', 'DeepSeek Chat', 128_000)]
+    models: [chat('anthropic/claude-sonnet-5-5', 'Claude Sonnet 5.5', 1_000_000, { vision: true }), chat('openai/gpt-5', 'GPT-5', 400_000, { vision: true }), chat('deepseek/deepseek-chat', 'DeepSeek Chat', 128_000)]
   },
   {
     presetId: 'deepseek', name: 'DeepSeek', protocol: 'openai', baseUrl: 'https://api.deepseek.com/v1', apiKeyEnv: 'DEEPSEEK_API_KEY', requiresKey: true, preset: 'deepseek',

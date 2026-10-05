@@ -54,7 +54,7 @@ export interface PermissionRule {
 
 export type PermissionMode = 'ask' | 'auto-edit' | 'plan' | 'yolo'
 
-export type ReasoningEffort = 'off' | 'low' | 'medium' | 'high'
+export type ReasoningEffort = 'off' | 'low' | 'medium' | 'high' | 'xhigh' | 'max'
 
 export interface AgentConfig {
   id: string
@@ -71,6 +71,9 @@ export interface AgentConfig {
   maxSteps?: number
   color?: string
   builtin?: boolean
+  /** where the definition came from (set when loaded) */
+  source?: 'builtin' | 'settings' | 'global-file' | 'project-file'
+  filePath?: string
   hidden?: boolean
   contextRules?: {
     projectInstructions?: boolean
@@ -232,6 +235,9 @@ export function defaultPermissionRules(): PermissionRule[] {
       'rm -rf /', 'rm -rf /*', 'rm -rf ~*', 'rm -rf $HOME*', 'sudo rm *', 'mkfs*', 'dd if=*', ':(){*', 'shutdown*', 'reboot*',
       'format *', 'del /s /q c:*', 'rd /s /q c:*', 'Remove-Item -Recurse -Force C:*', 'chmod -R 777 /*'
     ].map(p => rule('shell', 'deny', p, 'Destructive command blocked')),
+    rule('shell', 'ask', '*.env*', 'Might read secrets'),
+    rule('shell', 'ask', '*id_rsa*', 'Might read secrets'),
+    rule('shell', 'ask', '*.pem*', 'Might read secrets'),
     rule('shell', 'ask', 'git push*'),
     rule('shell', 'ask', 'git commit*'),
     rule('shell', 'ask', 'git reset --hard*'),

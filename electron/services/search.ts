@@ -1,5 +1,5 @@
 import { promises as fsp } from 'node:fs'
-import { join } from 'node:path'
+import { join, relative, sep } from 'node:path'
 import picomatch from 'picomatch'
 import type { SearchOptions, SearchFileResult, SearchResult } from '../../shared/fs'
 import { workspace } from './workspace'
@@ -30,7 +30,7 @@ export function buildRegex(o: Pick<SearchOptions, 'query' | 'isRegex' | 'caseSen
 const active = new Map<string, AbortController>()
 
 export const searchApi = {
-  cancel(id: string) { active.get(id)?.abort() },
+  async cancel(id: string): Promise<void> { active.get(id)?.abort() },
 
   async search(o: SearchOptions, searchId = 'default'): Promise<SearchResult> {
     const root = workspace.requireRoot()
@@ -151,4 +151,63 @@ function makeMatch(line: string, lineNo: number, index: number, length: number) 
   const trimStart = Math.max(0, index - 40)
   const before = (trimStart > 0 ? '…' : '') + line.slice(trimStart, index).replace(/^\s+/, trimStart === 0 ? '' : '$&')
   return { line: lineNo, col: index + 1, length, before, text: line.slice(index, index + length), after: line.slice(index + length, index + length + 160) }
+}
+
+export interface GrepOptions {
+  root: string
+  dir: string
+  pattern: string
+  isRegex: boolean
+  caseSensitive: boolean
+  include?: string
+  context?: number
+  maxMatches?: number
+  signal?: AbortSignal
+}
+export interface GrepResult { files: { rel: string; abs: string; matches: { line: number; text: string; before: string[]; after: string[] }[] }[]; total: number; truncated: boolean; filesSearched: number }
+
+/** Content search used by the agent's grep tool (scoped to a directory, with optional context lines). */
+export async function grepFiles(o: GrepOptions): Promise<GrepResult> {
+  const { walkFiles } = await import('./fileindex')
+  const re = buildRegex({ query: o.pattern, isRegex: o.isRegex, caseSensitive: o.caseSensitive, wholeWord: false }, /\\n|\n/.test(o.pattern) ? 'm' : '')
+  const include = o.include ? compileGlobList(o.include) : null
+  const rels = await walkFiles(o.dir)
+  const max = o.maxMatches ?? 200
+  const out: GrepResult = { files: [], total: 0, truncated: false, filesSearched: 0 }
+  let idx = 0
+  const ctx = o.context ?? 0
+  const worker = async () => {
+    while (!o.signal?.aborted && !out.truncated) {
+      const i = idx++
+      if (i >= rels.length) return
+      const rel = rels[i]
+      if (include && !include(rel)) continue
+      const abs = join(o.dir, rel)
+      try {
+        const st = await fsp.stat(abs)
+        if (st.size > MAX_FILE_BYTES || st.size === 0) continue
+        const buf = await fsp.readFile(abs)
+        if (isBinaryBuffer(buf)) continue
+        out.filesSearched++
+        const text = buf.toString('utf8')
+        const found = findMatches(text, re, /\\n|\n/.test(o.pattern))
+        if (!found.length) continue
+        const lines = text.split('\n')
+        const matches = found.map(m => ({
+          line: m.line,
+          text: (lines[m.line - 1] ?? '').replace(/\r$/, ''),
+          before: ctx ? lines.slice(Math.max(0, m.line - 1 - ctx), m.line - 1).map(l => l.replace(/\r$/, '')) : [],
+          after: ctx ? lines.slice(m.line, m.line + ctx).map(l => l.replace(/\r$/, '')) : []
+        }))
+        const room = max - out.total
+        if (matches.length > room) { matches.length = room; out.truncated = true }
+        out.total += matches.length
+        out.files.push({ rel: relative(o.root, abs).split(sep).join('/'), abs, matches })
+        if (out.total >= max) out.truncated = true
+      } catch { /* unreadable */ }
+    }
+  }
+  await Promise.all(Array.from({ length: 8 }, worker))
+  out.files.sort((a, b) => a.rel.localeCompare(b.rel))
+  return out
 }
