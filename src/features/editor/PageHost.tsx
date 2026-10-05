@@ -20,7 +20,7 @@ export function PageHost({ tab }: { tab: Tab }) {
       case 'home': return tab.data?.markdown ? <MarkdownPreview path={tab.data.markdown as string} /> : <Home />
       case 'settings': return <SettingsPage section={tab.data?.section as string | undefined} />
       case 'models': return <ModelsPage />
-      case 'agents': return <AgentsPage agentId={tab.data?.agent as string | undefined} />
+      case 'agents': return <AgentsPage agentId={tab.data?.agent as string | undefined} copy={tab.data?.copy as string | undefined} />
       case 'images': return <ImagesPage assetId={tab.data?.asset as string | undefined} />
       case 'bench': return <BenchPage />
       case 'changes': return <ChangesPage sessionId={tab.data?.sessionId as string} />
