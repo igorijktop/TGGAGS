@@ -1,5 +1,6 @@
 // The typed RPC surface between renderer and main process. Each domain is implemented in
 // `electron/api.ts`; the renderer calls it through the proxy in `src/lib/api.ts`.
+import type { TerminalCreateOptions, TerminalInfo, GitApi, LspApi, DebugApi, ProjectApi, LspDiagnostic, LspServerStatus, DebugSnapshot, Breakpoint } from './dev'
 import type { Settings, AgentConfig, ModelInfo, PermissionRule, ProviderConfig } from './settings'
 import type {
   AiEvent, CommandInfo, ContextItem, ContextSnapshot, FileChange, MemoryState, PermissionReply, PermissionRequest, QuestionReply, QuestionRequest,
@@ -92,6 +93,16 @@ export interface OutputApi {
   clear(channel: string): Promise<void>
 }
 
+export interface TerminalApi {
+  create(opts?: TerminalCreateOptions): Promise<TerminalInfo>
+  write(id: string, data: string): Promise<void>
+  resize(id: string, cols: number, rows: number): Promise<void>
+  kill(id: string): Promise<void>
+  list(): Promise<TerminalInfo[]>
+  buffer(id: string): Promise<string>
+  tail(chars?: number, id?: string): Promise<string>
+}
+
 export interface Api {
   app: AppApi
   window: WindowApi
@@ -109,6 +120,11 @@ export interface Api {
   memory: MemoryApi
   permissions: PermissionsApi
   providers: ProvidersApi
+  terminal: TerminalApi
+  git: GitApi
+  lsp: LspApi
+  debug: DebugApi
+  project: ProjectApi
 }
 
 export interface EventMap {
@@ -121,6 +137,15 @@ export interface EventMap {
   'window:maximized': boolean
   'app:open-path': { path: string; isDir: boolean }
   'ai:event': AiEvent
+  'terminal:data': { id: string; data: string }
+  'terminal:exit': { id: string; code: number | null }
+  'terminal:created': TerminalInfo
+  'terminal:removed': { id: string }
+  'lsp:diagnostics': { path: string; diagnostics: LspDiagnostic[] }
+  'lsp:status': LspServerStatus[] | undefined
+  'debug:state': DebugSnapshot
+  'debug:output': { category: 'stdout' | 'stderr' | 'info' | 'error'; text: string }
+  'debug:breakpoints': { path: string; breakpoints: Breakpoint[] }
 }
 
 // ───────────────────────── AI engine ─────────────────────────

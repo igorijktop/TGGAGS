@@ -11,6 +11,11 @@ import { dataPath, userDir } from './services/paths'
 import { defaultShell } from './services/proc'
 import { mainWindow } from './window'
 import { themeById } from '../shared/themes'
+import { terminals } from './dev/terminal'
+import { gitApi } from './dev/git'
+import { lsp } from './dev/lsp'
+import { debuggerService } from './dev/debug'
+import { projectApi } from './dev/project'
 import { aiApi, agentsApi, toolsApi, skillsApi, commandsApi, memoryApi, permissionsApi, providersApi } from './ai/api'
 
 const win = (): BrowserWindow => {
@@ -84,6 +89,19 @@ export function buildApi(): Api {
     commands: commandsApi,
     memory: memoryApi,
     permissions: permissionsApi,
-    providers: providersApi
+    providers: providersApi,
+    terminal: {
+      async create(o) { return terminals.create(o) },
+      async write(id, d) { terminals.write(id, d) },
+      async resize(id, c, r) { terminals.resize(id, c, r) },
+      async kill(id) { terminals.kill(id) },
+      async list() { return terminals.list() },
+      async buffer(id) { return terminals.buffer(id) },
+      async tail(chars, id) { return terminals.tail(chars, id) }
+    },
+    git: gitApi,
+    lsp,
+    debug: debuggerService,
+    project: projectApi
   }
 }

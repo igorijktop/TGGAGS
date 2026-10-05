@@ -9,6 +9,11 @@ import { createMainWindow, mainWindow } from './window'
 import { workspace } from './services/workspace'
 import { emit } from './services/events'
 import { log } from './services/log'
+import { bootAi } from './ai/boot'
+import { sessions } from './ai/sessions'
+import { terminals } from './dev/terminal'
+import { lsp } from './dev/lsp'
+import { killAllBackground } from './ai/tools/background'
 
 if (process.env.TGG_USER_DATA) app.setPath('userData', process.env.TGG_USER_DATA)
 app.setName('TGGAGS IDE')
@@ -52,6 +57,7 @@ app.whenReady().then(async () => {
     return net.fetch(pathToFileURL(p).toString())
   })
 
+  bootAi()
   registerRpc(buildApi())
   const win = createMainWindow()
 
@@ -67,5 +73,5 @@ app.whenReady().then(async () => {
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createMainWindow() })
 }).catch(err => { console.error('Fatal startup error', err); app.exit(1) })
 
-app.on('before-quit', () => { settings.flush() })
+app.on('before-quit', () => { settings.flush(); sessions.flushAll(); terminals.killAll(); lsp.shutdown(); killAllBackground() })
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit() })
