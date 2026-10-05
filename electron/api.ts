@@ -67,7 +67,8 @@ export function buildApi(): Api {
         void t
         return next
       },
-      async reset(section) { return settings.reset(section as never) }
+      async reset(section) { return settings.reset(section as never) },
+      async setSection(section, value) { return settings.setSection(section as never, value as never) }
     },
     credentials: {
       async set(key, value) { credentials.set(key, value) },

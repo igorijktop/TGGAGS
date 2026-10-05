@@ -261,7 +261,7 @@ export function defaultPermissionRules(): PermissionRule[] {
 
 export function defaultSettings(): Settings {
   return {
-    appearance: { theme: 'tgg-light', uiScale: 1, chatFont: 'sans', motion: 'system', activityBarLabels: true, compact: false },
+    appearance: { theme: 'tgg-light', uiScale: 1, chatFont: 'serif', motion: 'system', activityBarLabels: true, compact: false },
     editor: {
       fontFamily: "'JetBrains Mono', Consolas, 'Courier New', monospace",
       fontSize: 13.5, lineHeight: 1.65, tabSize: 2, insertSpaces: true, wordWrap: 'off', minimap: true,

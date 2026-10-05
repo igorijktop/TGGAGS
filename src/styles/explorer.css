@@ -1,0 +1,13 @@
+.tree { padding: 2px 0 24px; outline: none; }
+.tree-row { display: flex; align-items: center; gap: 6px; height: 26px; padding-right: 10px; margin: 0 6px; border-radius: 6px; cursor: pointer; position: relative; white-space: nowrap; }
+.tree-row:hover { background: var(--bg-hover); }
+.tree-row.sel { background: var(--bg-active); }
+.tree-row.current .tree-name { font-weight: 600; }
+.tree-row.drop { background: var(--accent-soft); outline: 1px dashed var(--accent); }
+.tree-chev { color: var(--fg-subtle); transition: transform .12s var(--ease); flex-shrink: 0; }
+.tree-chev.open { transform: rotate(90deg); }
+.tree-name { flex: 1; min-width: 0; font-size: 13px; }
+.tree-name.deleted { text-decoration: line-through; }
+.tree-badge { font-size: 11px; font-weight: 600; font-family: var(--font-mono); margin-left: 4px; flex-shrink: 0; }
+.tree-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; opacity: .8; }
+.tree-input { flex: 1; min-width: 0; height: 22px; padding: 0 6px; border: 1px solid var(--accent); border-radius: 5px; background: var(--bg-input); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); font-size: 13px; }

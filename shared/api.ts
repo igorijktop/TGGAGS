@@ -44,6 +44,7 @@ export interface SettingsApi {
   get(): Promise<Settings>
   update(patch: Record<string, unknown>): Promise<Settings>
   reset(section?: string): Promise<Settings>
+  setSection(section: string, value: unknown): Promise<Settings>
 }
 
 export interface CredentialsApi {
