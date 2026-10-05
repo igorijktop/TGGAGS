@@ -105,3 +105,6 @@ export function installKeybindings(): () => void {
   window.addEventListener('keydown', handler, true)
   return () => window.removeEventListener('keydown', handler, true)
 }
+
+/** Display string of a command's current shortcut (for tooltips). */
+export const kbHint = (id: string): string | undefined => { const k = keybindingFor(id); return k ? formatKeybinding(k) : undefined }

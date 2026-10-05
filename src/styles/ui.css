@@ -12,7 +12,7 @@
 .btn.ghost:hover:not(:disabled) { background: var(--bg-hover); color: var(--fg); }
 .btn.danger { background: var(--danger); color: #fff; }
 .btn.danger:hover:not(:disabled) { background: color-mix(in srgb, var(--danger) 88%, black); }
-.btn.soft { background: var(--accent-soft); color: var(--accent-strong); }
+.btn.soft { background: var(--accent-soft); color: var(--accent-text); }
 .btn.soft:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 20%, transparent); }
 .icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: var(--radius-sm); color: var(--fg-muted); flex-shrink: 0; transition: background .12s, color .12s; position: relative; }
 .icon-btn:hover:not(:disabled) { background: var(--bg-hover); color: var(--fg); }
@@ -53,7 +53,7 @@
 
 /* ───── badges / chips ───── */
 .badge { display: inline-flex; align-items: center; gap: 4px; height: 18px; padding: 0 7px; border-radius: 9px; font-size: 11px; font-weight: 500; background: var(--bg-active); color: var(--fg-muted); white-space: nowrap; }
-.badge.accent { background: var(--accent-soft); color: var(--accent-strong); }
+.badge.accent { background: var(--accent-soft); color: var(--accent-text); }
 .badge.success { background: var(--success-soft); color: var(--success); }
 .badge.warning { background: var(--warning-soft); color: var(--warning); }
 .badge.danger { background: var(--danger-soft); color: var(--danger); }
@@ -73,7 +73,7 @@ button.chip:hover, .chip.clickable:hover { background: var(--bg-hover); color: v
 .menu-item .mi-icon { width: 16px; display: inline-flex; color: var(--fg-muted); flex-shrink: 0; }
 .menu-item .mi-label { flex: 1; min-width: 0; }
 .menu-item .mi-hint { color: var(--fg-subtle); font-size: 11.5px; margin-left: 12px; }
-.menu-item .mi-check { width: 14px; color: var(--accent-strong); }
+.menu-item .mi-check { width: 14px; color: var(--accent-text); }
 .menu-sep { height: 1px; background: var(--border); margin: 5px 4px; }
 .menu-title { padding: 6px 10px 3px; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--fg-subtle); }
 .tooltip { position: fixed; z-index: 2000; background: color-mix(in srgb, var(--fg) 92%, var(--bg)); color: var(--bg); padding: 4px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 500; pointer-events: none; box-shadow: var(--shadow-md); max-width: 280px; animation: fadeIn .1s; display: flex; gap: 8px; align-items: center; }
@@ -112,8 +112,8 @@ button.chip:hover, .chip.clickable:hover { background: var(--bg-hover); color: v
 .resizer.h::after { top: -3px; bottom: -3px; left: 0; right: 0; height: 6px; }
 .resizer:hover::after, .resizer.dragging::after { background: color-mix(in srgb, var(--accent) 45%, transparent); }
 .section-title { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--fg-subtle); }
-.link-btn { color: var(--accent-strong); font-weight: 500; } .link-btn:hover { text-decoration: underline; }
-.hl-match { color: var(--accent-strong); font-weight: 600; }
+.link-btn { color: var(--accent-text); font-weight: 500; } .link-btn:hover { text-decoration: underline; }
+.hl-match { color: var(--accent-text); font-weight: 600; }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fg-subtle); flex-shrink: 0; }
 .status-dot.ok { background: var(--success); } .status-dot.warn { background: var(--warning); } .status-dot.err { background: var(--danger); } .status-dot.run { background: var(--info); animation: pulse 1.2s infinite; }
 kbd.k { font-family: var(--font-ui); }
@@ -139,4 +139,4 @@ kbd.k { font-family: var(--font-ui); }
 .pal-empty { padding: 28px; text-align: center; color: var(--fg-subtle); }
 .pal-foot { display: flex; gap: 14px; align-items: center; padding: 8px 14px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--fg-subtle); flex-shrink: 0; }
 .pal-foot .kbd { margin-right: 4px; height: 16px; min-width: 16px; }
-.hl-match { color: var(--accent-strong); font-weight: 600; }
+.hl-match { color: var(--accent-text); font-weight: 600; }

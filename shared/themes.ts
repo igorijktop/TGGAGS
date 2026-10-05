@@ -78,7 +78,7 @@ export const THEMES: ThemeDef[] = [
   make('tgg-dark', 'Charcoal', 'dark', {
     bg: '#262624', sidebar: '#1F1E1D', elevated: '#30302D', hover: '#2D2C2A', active: '#383733', input: '#2E2D2B',
     fg: '#F2F0E9', muted: '#B0ACA1', subtle: '#827E73', border: '#3A3935', borderStrong: '#4A4842',
-    accent: '#E0805D', accentStrong: '#C96846', accentFg: '#FFFFFF', accentSoft: 'rgba(224,128,93,0.16)',
+    accent: '#E0805D', accentStrong: '#B85A3A', accentFg: '#FFFFFF', accentSoft: 'rgba(224,128,93,0.16)',
     success: '#6FC28B', warning: '#E3A93E', danger: '#F0776D', info: '#7AAEF0', selection: 'rgba(224,128,93,0.28)', shadow: '0,0,0', overlay: 'rgba(0,0,0,0.55)'
   }, charcoalSyntax, 'Warm dark theme matching the Paper light theme.'),
   make('tgg-midnight', 'Midnight', 'dark', {

@@ -176,7 +176,7 @@ export function Composer({ sessionId, variant = 'panel', autoFocus, placeholder,
     }
     const mentions = draft.mentions.filter(m => m.kind === 'url' || text.includes('@' + (m.kind === 'agent' ? m.value : relativeTo(root, m.value))))
     onSubmitted?.()
-    if (draftKey) set({ text: '', images: [], mentions: [] })
+    if (draftKey) { set({ text: '', images: [], mentions: [] }); await useAi.getState().newChat() } // the home page always starts a fresh chat
     await useAi.getState().send(text, { images: draft.images, mentions, sessionId: sessionId ?? undefined })
   }
   const runSlash = async (name: string, args: string): Promise<boolean> => {
@@ -193,6 +193,7 @@ export function Composer({ sessionId, variant = 'panel', autoFocus, placeholder,
     if (!exp) return false
     onSubmitted?.()
     clear()
+    if (draftKey) await ai.newChat()
     await ai.send(exp.text, { agent: exp.agent, sessionId: sessionId ?? undefined })
     return true
   }

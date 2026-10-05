@@ -24,7 +24,7 @@
 .activity.compact .act-item { width: 40px; height: 40px; padding: 0; justify-content: center; }
 .act-item:hover { background: var(--bg-hover); color: var(--fg); }
 .act-item.active { background: var(--bg-active); color: var(--fg); }
-.act-item.active svg { color: var(--accent-strong); }
+.act-item.active svg { color: var(--accent-text); }
 .act-item .act-label { font-size: 10.5px; font-weight: 500; letter-spacing: .005em; line-height: 1.1; white-space: nowrap; }
 .act-item .act-badge { position: absolute; top: 3px; right: 8px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--accent-strong); color: var(--accent-fg); font-size: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
 .activity .grow { flex: 1; }
@@ -59,7 +59,7 @@
 .status-item { display: inline-flex; align-items: center; gap: 5px; height: 20px; padding: 0 7px; border-radius: 5px; color: inherit; white-space: nowrap; }
 button.status-item:hover { background: var(--bg-hover); color: var(--fg); }
 .status-item.err { color: var(--danger); } .status-item.warn { color: var(--warning); }
-.status-item.accent { color: var(--accent-strong); font-weight: 500; }
+.status-item.accent { color: var(--accent-text); font-weight: 500; }
 
 /* ───── tabs & editor groups ───── */
 .split { display: flex; flex: 1; min-width: 0; min-height: 0; }
@@ -85,7 +85,7 @@ button.status-item:hover { background: var(--bg-hover); color: var(--fg); }
 .tab .tab-close:hover { background: var(--bg-active); color: var(--fg); }
 .tab .tab-dirty { width: 8px; height: 8px; border-radius: 50%; background: var(--fg-muted); flex-shrink: 0; margin: 0 5px; }
 .tab:hover .tab-dirty { display: none; }
-.tab .tab-pin { color: var(--accent-strong); flex-shrink: 0; }
+.tab .tab-pin { color: var(--accent-text); flex-shrink: 0; }
 .tab .tab-err { width: 6px; height: 6px; border-radius: 50%; background: var(--danger); flex-shrink: 0; }
 .tabbar-actions { display: flex; align-items: center; gap: 2px; padding: 0 6px; }
 .breadcrumbs { height: 26px; flex-shrink: 0; display: flex; align-items: center; gap: 2px; padding: 0 12px; font-size: 12px; color: var(--fg-muted); overflow: hidden; white-space: nowrap; border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
@@ -124,10 +124,10 @@ button.status-item:hover { background: var(--bg-hover); color: var(--fg); }
 .prob-file { display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 12px; font-size: 12.5px; background: var(--bg-sidebar); position: sticky; top: 0; z-index: 1; border-bottom: 1px solid var(--border); }
 .prob-row { display: flex; align-items: center; gap: 8px; min-height: 26px; padding: 2px 12px 2px 28px; font-size: 12.5px; cursor: pointer; } .prob-row:hover { background: var(--bg-hover); }
 .prob-msg { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.prob-fix { width: 22px; height: 22px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; color: var(--accent-strong); opacity: 0; } .prob-row:hover .prob-fix { opacity: 1; } .prob-fix:hover { background: var(--accent-soft); }
+.prob-fix { width: 22px; height: 22px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; color: var(--accent-text); opacity: 0; } .prob-row:hover .prob-fix { opacity: 1; } .prob-fix:hover { background: var(--accent-soft); }
 .info-ic { color: var(--info); }
 .mono-lines { font-family: var(--font-mono); font-size: 12px; line-height: 1.55; padding: 6px 0; }
 .ol { padding: 0 14px; white-space: pre-wrap; word-break: break-word; } .ol:hover { background: var(--bg-hover); }
 .ol-t { color: var(--fg-subtle); margin-right: 10px; font-size: 11px; }
-.ol.error, .ol.stderr { color: var(--danger); } .ol.warn { color: var(--warning); } .ol.info { color: var(--info); } .ol.input { color: var(--accent-strong); } .ol.result { color: var(--success); }
+.ol.error, .ol.stderr { color: var(--danger); } .ol.warn { color: var(--warning); } .ol.info { color: var(--info); } .ol.input { color: var(--accent-text); } .ol.result { color: var(--success); }
 .dbg-input { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-top: 1px solid var(--border); flex-shrink: 0; } .dbg-input input { flex: 1; border: 0; outline: none; background: none; font-family: var(--font-mono); font-size: 12px; }

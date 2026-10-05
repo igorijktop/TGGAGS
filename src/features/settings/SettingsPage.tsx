@@ -186,12 +186,12 @@ function Hooks() {
   const patch = (id: string, p: Partial<HookConfig>) => save(hooks.map(h => (h.id === id ? { ...h, ...p } : h)))
   return <Section title="Hooks" description="Run your own commands when something happens — format files after edits, run tests when the agent finishes, block risky tools, or send a notification."
     actions={<Button icon={Plus} onClick={() => save([...hooks, { id: uid('hook-'), event: 'file.edited', command: '', enabled: true }])}>Add hook</Button>}>
-    {hooks.length === 0 && <div className="card set-empty"><Webhook size={22} /><div><b>No hooks yet</b><p>Example: when a file is edited, run <code>npx prettier --write "$TGG_FILE"</code>. Hook commands receive details through environment variables (TGG_EVENT, TGG_TOOL, TGG_FILE, TGG_SESSION).</p></div></div>}
+    {hooks.length === 0 && <div className="card set-empty"><Webhook size={22} /><div><b>No hooks yet</b><p>Example: run <code>npm test</code> every time the agent finishes. Your command receives the event details (tool, file path, working folder…) as JSON on standard input, and <code>TGG_HOOK_EVENT</code> in its environment. With “Blocks the agent” on, a command that fails (non-zero exit) stops the action and its output is shown to the agent.</p></div></div>}
     {hooks.map(h => <div key={h.id} className="card hook-card">
       <div className="row gap8"><SelectField width={230} value={h.event} options={HOOK_EVENTS} onChange={v => patch(h.id, { event: v })} />
         {h.event.startsWith('tool.') && <TextField width={150} mono value={h.match ?? ''} placeholder="tool, e.g. edit|write" onChange={v => patch(h.id, { match: v.trim() || undefined })} />}
         <span className="grow" /><span className="small muted">Blocks the agent</span><Switch on={!!h.blocking} onChange={v => patch(h.id, { blocking: v })} /><span className="small muted">On</span><Switch on={h.enabled} onChange={v => patch(h.id, { enabled: v })} /><IconButton icon={Trash2} size="sm" tip="Delete hook" onClick={() => save(hooks.filter(x => x.id !== h.id))} /></div>
-      <TextField width="100%" mono value={h.command} placeholder='Command to run, e.g. npx prettier --write "$TGG_FILE"' onChange={v => patch(h.id, { command: v })} />
+      <TextField width="100%" mono value={h.command} placeholder='Command to run, e.g. npm test' onChange={v => patch(h.id, { command: v })} />
     </div>)}
   </Section>
 }

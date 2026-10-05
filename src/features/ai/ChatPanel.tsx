@@ -1,4 +1,5 @@
 import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { kbHint } from '../../lib/commands'
 import { AlertCircle, ArrowDown, Brain, Search, Check, ChevronRight, Copy, FileDiff, GitFork, Hammer, ListChecks, Maximize2, Minimize2, MoreHorizontal, Pencil, Plus, RotateCcw, Sparkles, Trash2, Undo2, History, Download, Eraser, ShieldQuestion, Wand2 } from 'lucide-react'
 import type { Message, Part, Session, ToolPart } from '@shared/ai'
 import { api } from '../../lib/api'
@@ -179,7 +180,7 @@ function Header({ session }: { session: Session | null }) {
   return <div className="chat-head">
     <button className="ch-title" onClick={e => setEl(el ? null : e.currentTarget)}><span className="truncate">{title}</span><ChevronRight size={13} className="ch-caret" /></button>
     <span className="grow" />
-    <IconButton icon={Plus} tip="New chat" kbd="Ctrl+Shift+L" onClick={() => void useAi.getState().newChat()} />
+    <IconButton icon={Plus} tip="New chat" kbd={kbHint('ai.newChat')} onClick={() => void useAi.getState().newChat()} />
     <IconButton icon={focus ? Minimize2 : Maximize2} tip={focus ? 'Back to the editor' : 'Focus on chat'} onClick={() => useUi.getState().set({ chatFocus: !focus })} />
     <IconButton icon={MoreHorizontal} tip="More" active={!!more} onClick={e => setMore(more ? null : e.currentTarget)} />
     {el && <Popover anchor={el} placement="bottom-start" onClose={() => setEl(null)} width={330}>

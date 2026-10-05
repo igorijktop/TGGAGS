@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { kbHint } from '../../lib/commands'
 import { Bot, Download, GitFork, MessageSquarePlus, Pencil, Search, Trash2, MessagesSquare } from 'lucide-react'
 import type { SessionMeta } from '@shared/ai'
 import { api } from '../../lib/api'
@@ -33,7 +34,7 @@ export function SessionsView() {
   const rename = async (s: SessionMeta) => { const t = await dialogs.prompt({ title: 'Rename chat', initial: s.title, confirmLabel: 'Rename' }); if (t?.trim()) { await api.ai.sessions.rename(s.id, t.trim()); await useAi.getState().loadSessions() } }
   const del = async (s: SessionMeta) => { if (await dialogs.confirm({ title: `Delete “${s.title}”?`, message: 'This chat is removed for good. File changes already made are not reverted.', confirmLabel: 'Delete', danger: true })) await useAi.getState().removeSession(s.id) }
   return <>
-    <div className="sb-head"><h2>AI Chats</h2><IconButton icon={MessageSquarePlus} tip="New chat" kbd="Ctrl+Shift+L" size="sm" onClick={() => { void useAi.getState().newChat(); useUi.getState().set({ aiVisible: true }); window.dispatchEvent(new Event('tgg:focus-composer')) }} /></div>
+    <div className="sb-head"><h2>AI Chats</h2><IconButton icon={MessageSquarePlus} tip="New chat" kbd={kbHint('ai.newChat')} size="sm" onClick={() => { void useAi.getState().newChat(); useUi.getState().set({ aiVisible: true }); window.dispatchEvent(new Event('tgg:focus-composer')) }} /></div>
     <div className="sb-pad" style={{ paddingTop: 0 }}><div className="search-input"><Search size={13} /><input className="input sm" placeholder="Search chats…" value={q} onChange={e => setQ(e.target.value)} /></div></div>
     <div className="sb-body" style={{ paddingBottom: 16 }}>
       {sessions.length === 0 && <EmptyState icon={MessagesSquare} title="No chats yet" text="Chats for this project show up here, so you can pick up where you left off."><Button variant="primary" onClick={() => { void useAi.getState().newChat(); window.dispatchEvent(new Event('tgg:focus-composer')) }}>Start a chat</Button></EmptyState>}

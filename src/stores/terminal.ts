@@ -9,11 +9,16 @@ interface TermState {
   create(opts?: { cwd?: string; name?: string; initialCommand?: string; show?: boolean }): Promise<TerminalInfo>
   kill(id: string): Promise<void>
   select(id: string): void
+  /** make sure at least one terminal exists (concurrent callers share one creation) */
+  ensure(): Promise<void>
   runCommand(command: string, name?: string): Promise<void>
 }
 
+let ensuring: Promise<void> | null = null
+
 export const useTerminals = create<TermState>((set, get) => ({
   terminals: [], active: null,
+  ensure() { if (get().terminals.length) return Promise.resolve(); ensuring ??= get().create({ show: false }).then(() => undefined).finally(() => { ensuring = null }); return ensuring },
   async create(o = {}) {
     const info = await api.terminal.create({ cwd: o.cwd, name: o.name, initialCommand: o.initialCommand })
     set(s => ({ terminals: s.terminals.some(t => t.id === info.id) ? s.terminals : [...s.terminals, info], active: info.id }))

@@ -10,6 +10,8 @@ export function applyTheme(id: string): ThemeDef {
   const t = findTheme(id)
   const root = document.documentElement
   for (const [k, v] of Object.entries(t.ui)) root.style.setProperty(k, v)
+  // accent used for text/icons on the page background: dark accent on light themes, bright accent on dark themes
+  root.style.setProperty('--accent-text', t.kind === 'light' ? t.ui['--accent-strong'] : t.ui['--accent'])
   root.dataset.theme = t.id
   root.dataset.kind = t.kind
   root.style.colorScheme = t.kind

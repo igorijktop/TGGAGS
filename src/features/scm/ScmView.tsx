@@ -29,7 +29,7 @@ function CommitBox() {
   const staged = git.files.filter(f => f.staged).length
   const changed = git.files.filter(f => f.unstaged || f.untracked).length
   const ta = useRef<HTMLTextAreaElement>(null)
-  useEffect(() => { const t = ta.current; if (t) { t.style.height = 'auto'; t.style.height = Math.min(160, t.scrollHeight) + 'px' } }, [msg])
+  useEffect(() => { const t = ta.current; if (t) { t.style.height = 'auto'; t.style.height = Math.min(160, t.scrollHeight + 2) + 'px' } }, [msg])
   const commit = async (o: { push?: boolean; stageAll?: boolean } = {}) => {
     if (!msg.trim() && !amend) { toast.warn('Write a commit message first.'); ta.current?.focus(); return }
     if (!staged && !o.stageAll && !amend) {

@@ -134,7 +134,7 @@ export function AgentPicker({ value, onChange, placement = 'top-start' }: { valu
   const cur = agents.find(a => a.id === value)
   const Icon = AGENT_ICON[value] ?? Bot
   return <>
-    <Trigger icon={Icon} label={cur?.name ?? value} tip="Agent" active={!!el} onClick={e => setEl(el ? null : e.currentTarget)} />
+    <Trigger icon={Icon} label={cur?.name ?? value} tip={`Agent: ${cur?.name ?? value}`} className="agent" active={!!el} onClick={e => setEl(el ? null : e.currentTarget)} />
     {el && <Popover anchor={el} placement={placement} onClose={() => setEl(null)} width={310}>
       <div className="menu-title">Agent</div>
       {primary.map((a: AgentConfig) => { const I = AGENT_ICON[a.id] ?? Bot; return <button key={a.id} className="menu-item" style={{ alignItems: 'flex-start', padding: '7px 10px' }} onClick={() => { onChange(a.id); setEl(null) }}>

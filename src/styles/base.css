@@ -34,7 +34,7 @@ body {
 }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; background: none; border: 0; padding: 0; }
-a { color: var(--accent-strong); text-decoration: none; }
+a { color: var(--accent-text); text-decoration: none; }
 a:hover { text-decoration: underline; }
 ::selection { background: var(--selection); }
 input, textarea, [contenteditable], .selectable, .selectable * { user-select: text; -webkit-user-select: text; }

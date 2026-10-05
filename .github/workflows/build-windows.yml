@@ -1,0 +1,44 @@
+name: Build Windows installer
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  installer:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install NSIS
+        run: choco install nsis -y --no-progress
+      - name: Type-check and unit tests
+        run: |
+          npm run build:main
+          npm run typecheck
+          npm test
+      - name: Build the offline installer
+        run: node scripts/package-win.mjs --installer
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TGGAGS-IDE-Setup
+          path: |
+            release/TGGAGS-IDE-Setup.exe
+            release/TGGAGS-IDE-Setup.exe.sha256
+          if-no-files-found: error
+      - name: Attach to the GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/TGGAGS-IDE-Setup.exe
+            release/TGGAGS-IDE-Setup.exe.sha256

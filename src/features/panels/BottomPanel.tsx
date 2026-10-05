@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { kbHint } from '../../lib/commands'
 import { AlertCircle, AlertTriangle, Bug, ChevronDown, Info, Maximize2, Minimize2, Plus, Sparkles, SquareTerminal, Trash2, X, CircleCheck, Terminal as TermIcon } from 'lucide-react'
 import type { LogLine } from '@shared/api'
 import type { LspDiagnostic } from '@shared/dev'
@@ -19,10 +20,8 @@ import { TerminalView } from './TerminalView'
 function Terminals() {
   const terms = useTerminals(s => s.terminals)
   const active = useTerminals(s => s.active)
-  const create = useTerminals(s => s.create)
-  const creating = useRef(false)
   const focusKey = useUi(s => s.panelTab) // re-fit when switching back
-  useEffect(() => { if (terms.length === 0 && !creating.current) { creating.current = true; void create({ show: false }).finally(() => { creating.current = false }) } }, [terms.length, create])
+  useEffect(() => { if (terms.length === 0) void useTerminals.getState().ensure() }, [terms.length])
   return <div className="term-wrap">
     {terms.map(t => <TerminalView key={t.id} id={t.id} visible={t.id === active} focusKey={focusKey === 'terminal' ? 1 : 0} />)}
     {terms.length === 0 && <div className="center grow subtle">Starting terminal…</div>}
@@ -38,7 +37,7 @@ function TerminalChips() {
   return <>
     <button className="term-chip" onClick={e => setMenu(menu ? null : e.currentTarget)}><SquareTerminal size={13} /><span className="truncate">{cur.name}</span>{cur.exited !== undefined && cur.exited !== null && <span className="subtle">(exited)</span>}{terms.length > 1 && <><span className="badge">{terms.length}</span><ChevronDown size={12} /></>}</button>
     {menu && <Menu anchor={menu} onClose={() => setMenu(null)} items={terms.map(t => ({ label: t.name, checked: t.id === active, hint: t.shell, onClick: () => useTerminals.getState().select(t.id) }))} />}
-    <IconButton icon={Plus} size="sm" tip="New terminal" kbd="Ctrl+Shift+`" onClick={() => void useTerminals.getState().create()} />
+    <IconButton icon={Plus} size="sm" tip="New terminal" kbd={kbHint('terminal.new')} onClick={() => void useTerminals.getState().create()} />
     <IconButton icon={Trash2} size="sm" tip="Kill this terminal" onClick={() => void useTerminals.getState().kill(cur.id)} />
   </>
 }
