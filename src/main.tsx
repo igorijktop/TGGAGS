@@ -3,6 +3,8 @@ import './styles/base.css'
 import './styles/ui.css'
 import './styles/shell.css'
 import './styles/explorer.css'
+import './styles/chat.css'
+import './styles/pages.css'
 import { App } from './App'
 
 createRoot(document.getElementById('root')!).render(<App />)

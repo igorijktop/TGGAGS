@@ -29,6 +29,7 @@ function cliPath(argv: string[]): string | null {
   for (const a of argv.slice(app.isPackaged ? 1 : 2)) {
     if (a.startsWith('-')) continue
     const p = resolve(a)
+    if (!app.isPackaged && p === resolve(app.getAppPath())) continue // `electron .` – the app itself is not a project
     if (existsSync(p)) return p
   }
   return null
