@@ -1,5 +1,8 @@
 // The typed RPC surface between renderer and main process. Each domain is implemented in
 // `electron/api.ts`; the renderer calls it through the proxy in `src/lib/api.ts`.
+import type { McpApi, ExtensionsApi } from './ext'
+import type { ImageApi, BenchApi, GithubApi, AssetMeta, BenchProgress } from './media'
+import type { BenchResult } from './ai'
 import type { TerminalCreateOptions, TerminalInfo, GitApi, LspApi, DebugApi, ProjectApi, LspDiagnostic, LspServerStatus, DebugSnapshot, Breakpoint } from './dev'
 import type { Settings, AgentConfig, ModelInfo, PermissionRule, ProviderConfig } from './settings'
 import type {
@@ -125,6 +128,11 @@ export interface Api {
   lsp: LspApi
   debug: DebugApi
   project: ProjectApi
+  mcp: McpApi
+  extensions: ExtensionsApi
+  images: ImageApi
+  bench: BenchApi
+  github: GithubApi
 }
 
 export interface EventMap {
@@ -146,7 +154,14 @@ export interface EventMap {
   'debug:state': DebugSnapshot
   'debug:output': { category: 'stdout' | 'stderr' | 'info' | 'error'; text: string }
   'debug:breakpoints': { path: string; breakpoints: Breakpoint[] }
+  'mcp:changed': import('./ext').McpServerState[]
+  'ext:changed': undefined
+  'app:notify': { message: string; level: 'info' | 'warn' | 'error'; source?: string }
+  'assets:changed': undefined
+  'bench:progress': BenchProgress
+  'bench:result': BenchResult
 }
+export type { AssetMeta }
 
 // ───────────────────────── AI engine ─────────────────────────
 

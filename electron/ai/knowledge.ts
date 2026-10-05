@@ -11,6 +11,7 @@ const home = () => process.env.USERPROFILE || process.env.HOME || ''
 function skillDirs(root: string | null): { dir: string; source: SkillInfo['source'] }[] {
   const out: { dir: string; source: SkillInfo['source'] }[] = []
   if (root) for (const d of [join(root, PROJECT_DIR, 'skills'), join(root, '.claude', 'skills'), join(root, '.agents', 'skills')]) out.push({ dir: d, source: 'project' })
+  for (const f of skillRoots) for (const d of f()) out.push({ dir: join(d, 'skills'), source: 'global' })
   out.push({ dir: dataPath('skills'), source: 'global' })
   if (home()) out.push({ dir: join(home(), '.claude', 'skills'), source: 'global' })
   return out
@@ -73,9 +74,16 @@ async function loadCommandDir(dir: string, source: CommandInfo['source']): Promi
   return out
 }
 
+const commandSources: (() => CommandInfo[])[] = []
+const skillRoots: (() => string[])[] = []
+/** Extensions contribute prompt commands and skill/agent folders through these hooks. */
+export function registerCommandSource(f: () => CommandInfo[]): void { commandSources.push(f) }
+export function registerSkillRoots(f: () => string[]): void { skillRoots.push(f) }
+
 export async function listCommands(root: string | null): Promise<CommandInfo[]> {
   const byName = new Map<string, CommandInfo>()
   for (const c of BUILTIN_COMMANDS) byName.set(c.name, c)
+  for (const src of commandSources) for (const c of src()) byName.set(c.name, c)
   for (const c of await loadCommandDir(dataPath('commands'), 'global')) byName.set(c.name, c)
   if (home()) for (const c of await loadCommandDir(join(home(), '.claude', 'commands'), 'global')) byName.set(c.name, c)
   if (root) {

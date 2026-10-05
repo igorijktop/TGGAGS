@@ -26,7 +26,7 @@ interface Palette {
 }
 
 function make(id: string, name: string, kind: 'light' | 'dark', p: Palette, syntax: SyntaxPalette, description?: string, monaco?: Record<string, string>): ThemeDef {
-  const soft = (c: string) => `color-mix(in srgb, ${c} ${kind === 'light' ? 12 : 18}%, transparent)`
+  const soft = (name: string) => `color-mix(in srgb, var(--${name}) ${kind === 'light' ? 12 : 18}%, transparent)`
   return {
     id, name, kind, description, syntax, monaco,
     ui: {
@@ -34,9 +34,9 @@ function make(id: string, name: string, kind: 'light' | 'dark', p: Palette, synt
       '--fg': p.fg, '--fg-muted': p.muted, '--fg-subtle': p.subtle, '--border': p.border, '--border-strong': p.borderStrong,
       '--accent': p.accent, '--accent-strong': p.accentStrong, '--accent-fg': p.accentFg, '--accent-soft': p.accentSoft,
       '--success': p.success, '--warning': p.warning, '--danger': p.danger, '--info': p.info,
-      '--success-soft': soft(p.success), '--warning-soft': soft(p.warning), '--danger-soft': soft(p.danger), '--info-soft': soft(p.info),
+      '--success-soft': soft('success'), '--warning-soft': soft('warning'), '--danger-soft': soft('danger'), '--info-soft': soft('info'),
       '--selection': p.selection, '--shadow-color': p.shadow, '--overlay': p.overlay,
-      '--diff-add': soft(p.success), '--diff-del': soft(p.danger)
+      '--diff-add': soft('success'), '--diff-del': soft('danger')
     }
   }
 }

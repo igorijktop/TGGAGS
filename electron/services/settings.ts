@@ -25,6 +25,14 @@ class SettingsService {
     return this.store.value
   }
 
+  /** Replace a whole top-level section (deep merge cannot remove keys). */
+  setSection<K extends keyof Settings>(section: K, value: Settings[K]): Settings {
+    this.store.value = { ...this.store.value, [section]: value }
+    this.store.save()
+    emit('settings:changed', this.store.value)
+    return this.store.value
+  }
+
   reset(section?: keyof Settings): Settings {
     const d = defaultSettings()
     this.store.value = section ? { ...this.store.value, [section]: d[section] } : { ...d, providers: this.store.value.providers, ui: this.store.value.ui }

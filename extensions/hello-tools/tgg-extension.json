@@ -1,0 +1,13 @@
+{
+  "id": "hello-tools",
+  "name": "Hello Tools (example)",
+  "version": "1.0.0",
+  "description": "A small example extension: three agent tools written in JavaScript, a slash command and a hook. Use it as a template for your own.",
+  "author": "TGGAGS",
+  "main": "index.js",
+  "contributes": {
+    "commands": [
+      { "name": "hello", "description": "Greet someone (example command)", "template": "Write a short, friendly greeting for $ARGUMENTS." }
+    ]
+  }
+}

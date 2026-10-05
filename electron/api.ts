@@ -16,6 +16,11 @@ import { gitApi } from './dev/git'
 import { lsp } from './dev/lsp'
 import { debuggerService } from './dev/debug'
 import { projectApi } from './dev/project'
+import { mcp } from './ext/mcp'
+import { extensions } from './ext/extensions'
+import { imageApi } from './media/images'
+import { benchApi } from './ai/bench'
+import { githubApi } from './integrations/github'
 import { aiApi, agentsApi, toolsApi, skillsApi, commandsApi, memoryApi, permissionsApi, providersApi } from './ai/api'
 
 const win = (): BrowserWindow => {
@@ -102,6 +107,11 @@ export function buildApi(): Api {
     git: gitApi,
     lsp,
     debug: debuggerService,
-    project: projectApi
+    project: projectApi,
+    mcp,
+    extensions,
+    images: imageApi,
+    bench: benchApi,
+    github: githubApi
   }
 }

@@ -1,0 +1,16 @@
+{
+  "id": "git-helpers",
+  "name": "Git Helpers",
+  "version": "1.0.0",
+  "description": "Slash commands for everyday Git writing tasks: changelog, PR description, release notes, stand-up summary, and a conventional commit message.",
+  "author": "TGGAGS",
+  "contributes": {
+    "commands": [
+      { "name": "changelog", "description": "Write a changelog entry from recent commits", "template": "Read the git log since the last tag (or the last 30 commits if there is no tag) and write a Keep-a-Changelog style entry grouped into Added / Changed / Fixed. Only describe things that really changed. $ARGUMENTS" },
+      { "name": "pr-description", "description": "Draft a pull request title and description for the current branch", "template": "Compare the current branch with its base branch (use git log and git diff against main/master or the upstream) and draft a pull-request title plus a description with Summary, Changes, Testing and Risks sections. Do not run git push. $ARGUMENTS" },
+      { "name": "release-notes", "description": "Write user-facing release notes", "template": "Write friendly, user-facing release notes for the changes since the last release tag. Lead with the most important improvements, avoid internal jargon. $ARGUMENTS" },
+      { "name": "standup", "description": "Summarise what I did recently from git history", "template": "Summarise my git activity from the last working day (git log --author for the configured user.name) as a short stand-up update: Done / In progress / Blockers. $ARGUMENTS" },
+      { "name": "conventional-commit", "description": "Write a Conventional Commits message for the staged changes", "template": "Look at the staged changes (git diff --staged) and write a single Conventional Commits message (type(scope): subject, then a body if useful). Show it; do not commit. $ARGUMENTS" }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "theme-pack",
+  "name": "Theme Pack",
+  "version": "1.0.0",
+  "description": "Extra colour themes: Solarized Light/Dark, Dracula, Nord, Gruvbox Dark and Rosé.",
+  "author": "TGGAGS",
+  "contributes": {
+    "themes": [
+      { "id": "solarized-light", "name": "Solarized Light", "kind": "light", "base": "tgg-light",
+        "ui": { "--bg": "#FDF6E3", "--bg-sidebar": "#EEE8D5", "--bg-elevated": "#FFFBEB", "--bg-hover": "#E6DFC8", "--bg-active": "#DDD6BE", "--bg-input": "#FFFBEB", "--fg": "#586E75", "--fg-muted": "#657B83", "--fg-subtle": "#93A1A1", "--border": "#E3DCC4", "--border-strong": "#D0C9B0", "--accent": "#268BD2", "--accent-strong": "#1F76B4", "--accent-soft": "rgba(38,139,210,0.12)", "--selection": "rgba(38,139,210,0.22)" },
+        "syntax": { "comment": "#93A1A1", "keyword": "#859900", "string": "#2AA198", "number": "#D33682", "type": "#B58900", "function": "#268BD2", "variable": "#586E75", "constant": "#CB4B16", "tag": "#268BD2" } },
+      { "id": "solarized-dark", "name": "Solarized Dark", "kind": "dark", "base": "tgg-dark",
+        "ui": { "--bg": "#002B36", "--bg-sidebar": "#00252E", "--bg-elevated": "#073642", "--bg-hover": "#0A3A47", "--bg-active": "#104553", "--bg-input": "#073642", "--fg": "#93A1A1", "--fg-muted": "#839496", "--fg-subtle": "#657B83", "--border": "#0F4350", "--border-strong": "#1B5666", "--accent": "#2AA198", "--accent-strong": "#23877F", "--accent-soft": "rgba(42,161,152,0.16)", "--selection": "rgba(42,161,152,0.28)" },
+        "syntax": { "comment": "#586E75", "keyword": "#859900", "string": "#2AA198", "number": "#D33682", "type": "#B58900", "function": "#268BD2", "variable": "#93A1A1", "constant": "#CB4B16", "tag": "#268BD2" } },
+      { "id": "dracula", "name": "Dracula", "kind": "dark", "base": "tgg-dark",
+        "ui": { "--bg": "#282A36", "--bg-sidebar": "#21222C", "--bg-elevated": "#343746", "--bg-hover": "#2F3140", "--bg-active": "#3B3E50", "--bg-input": "#2F3140", "--fg": "#F8F8F2", "--fg-muted": "#BDC0D8", "--fg-subtle": "#7C809E", "--border": "#3A3D4F", "--border-strong": "#4B4F66", "--accent": "#BD93F9", "--accent-strong": "#A67BEA", "--accent-soft": "rgba(189,147,249,0.16)", "--selection": "rgba(189,147,249,0.28)" },
+        "syntax": { "comment": "#6272A4", "keyword": "#FF79C6", "string": "#F1FA8C", "number": "#BD93F9", "type": "#8BE9FD", "function": "#50FA7B", "variable": "#F8F8F2", "constant": "#BD93F9", "tag": "#FF79C6", "attribute": "#50FA7B" } },
+      { "id": "nord", "name": "Nord", "kind": "dark", "base": "tgg-dark",
+        "ui": { "--bg": "#2E3440", "--bg-sidebar": "#272C36", "--bg-elevated": "#3B4252", "--bg-hover": "#363D4B", "--bg-active": "#434C5E", "--bg-input": "#363D4B", "--fg": "#ECEFF4", "--fg-muted": "#C0C8D8", "--fg-subtle": "#8791A5", "--border": "#3F485A", "--border-strong": "#4C566A", "--accent": "#88C0D0", "--accent-strong": "#6FA9BB", "--accent-fg": "#2E3440", "--accent-soft": "rgba(136,192,208,0.16)", "--selection": "rgba(136,192,208,0.28)" },
+        "syntax": { "comment": "#616E88", "keyword": "#81A1C1", "string": "#A3BE8C", "number": "#B48EAD", "type": "#8FBCBB", "function": "#88C0D0", "variable": "#D8DEE9", "constant": "#B48EAD", "tag": "#81A1C1" } },
+      { "id": "gruvbox-dark", "name": "Gruvbox Dark", "kind": "dark", "base": "tgg-dark",
+        "ui": { "--bg": "#282828", "--bg-sidebar": "#1D2021", "--bg-elevated": "#3C3836", "--bg-hover": "#32302F", "--bg-active": "#45403D", "--bg-input": "#32302F", "--fg": "#EBDBB2", "--fg-muted": "#BDAE93", "--fg-subtle": "#928374", "--border": "#3C3836", "--border-strong": "#504945", "--accent": "#FE8019", "--accent-strong": "#D65D0E", "--accent-fg": "#1D2021", "--accent-soft": "rgba(254,128,25,0.16)", "--selection": "rgba(254,128,25,0.26)" },
+        "syntax": { "comment": "#928374", "keyword": "#FB4934", "string": "#B8BB26", "number": "#D3869B", "type": "#FABD2F", "function": "#8EC07C", "variable": "#EBDBB2", "constant": "#D3869B", "tag": "#FB4934" } },
+      { "id": "rose-light", "name": "Rosé", "kind": "light", "base": "tgg-light",
+        "ui": { "--bg": "#FFFAF3", "--bg-sidebar": "#FAF4ED", "--bg-elevated": "#FFFFFF", "--bg-hover": "#F2E9E1", "--bg-active": "#EBDFD6", "--fg": "#575279", "--fg-muted": "#797593", "--fg-subtle": "#9893A5", "--border": "#EFE6DD", "--border-strong": "#DFD4CA", "--accent": "#D7827E", "--accent-strong": "#C46A66", "--accent-soft": "rgba(215,130,126,0.14)", "--selection": "rgba(215,130,126,0.22)" },
+        "syntax": { "comment": "#9893A5", "keyword": "#286983", "string": "#EA9D34", "number": "#D7827E", "type": "#56949F", "function": "#907AA9", "variable": "#575279", "constant": "#D7827E", "tag": "#286983" } }
+    ]
+  }
+}
