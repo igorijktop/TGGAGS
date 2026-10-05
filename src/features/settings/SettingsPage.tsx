@@ -258,8 +258,8 @@ export function SettingsPage({ section }: { section?: string }) {
   const Body = BODY[id]
   return <div className="settings">
     <nav className="set-nav" aria-label="Settings sections">
-      <h1 className="serif">Settings</h1>
-      {NAV.map(n => <button key={n.id} className={cn('set-nav-item', id === n.id && 'on')} onClick={() => setId(n.id)}><n.icon size={16} strokeWidth={1.8} />{n.label}</button>)}
+      <h1 className="serif"><span className="lbl">Settings</span></h1>
+      {NAV.map(n => <button key={n.id} className={cn('set-nav-item', id === n.id && 'on')} onClick={() => setId(n.id)} data-tip={n.label} data-tip-pos="right"><n.icon size={16} strokeWidth={1.8} /><span className="lbl">{n.label}</span></button>)}
     </nav>
     <div className="set-body"><div className="set-col" key={id}><Body /></div></div>
   </div>

@@ -31,7 +31,13 @@ export async function startMock({ delay = 12 } = {}) {
       send({ ...base, choices: [{ index: 0, delta: { role: 'assistant', content: '' } }] })
       if (isTitle) { await text('Add a greeting helper'); send({ ...base, choices: [{ index: 0, delta: {}, finish_reason: 'stop' }] }); res.write('data: [DONE]\n\n'); return res.end() }
       let finish = 'stop'
-      if (step === 0) {
+      const askIdx = msgs.map((m, i) => (m.role === 'user' && JSON.stringify(m.content).includes('ASKME') ? i : -1)).filter(i => i >= 0).pop() ?? -1
+      const asks = askIdx >= 0 && askIdx === lastUser
+      const askStep = asks ? msgs.slice(askIdx + 1).filter(m => m.role === 'tool').length : 0
+      if (asks) {
+        if (askStep === 0) { await text('I need one decision first.\n'); tools([{ name: 'question', args: { questions: [{ header: 'Setup', question: 'Which package manager should I use?', options: [{ label: 'npm', description: 'The default' }, { label: 'pnpm', description: 'Fast, disk-efficient' }] }] } }]); finish = 'tool_calls' }
+        else await text('Got it — I will use the package manager you chose.')
+      } else if (step === 0) {
         await think('The user wants a greeting helper. Let me look at the project layout and the existing entry point first, then add the function and verify it runs.')
         await text('I’ll start by looking at how the project is laid out.\n')
         tools([{ name: 'todowrite', args: { todos: [{ id: '1', content: 'Read the project', status: 'in_progress' }, { id: '2', content: 'Add the greet() helper', status: 'pending' }, { id: '3', content: 'Run it to verify', status: 'pending' }] } }, { name: 'read', args: { path: 'package.json' } }, { name: 'read', args: { path: 'src/index.js' } }])

@@ -9,6 +9,12 @@ ManifestDPIAware true
 !ifndef PRODUCT
   !define PRODUCT "TGGAGS IDE"
 !endif
+!ifndef PRODUCT_LEN
+  !define PRODUCT_LEN 10
+!endif
+!ifndef SIZE_KB
+  !define SIZE_KB 350000
+!endif
 !define APP_ID "TGGAGS-IDE"
 !define UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_ID}"
 
@@ -32,7 +38,6 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
 VIAddVersionKey "LegalCopyright" "TGGAGS"
 
 !include "MUI2.nsh"
-!include "FileFunc.nsh"
 !include "LogicLib.nsh"
 
 !define MUI_ICON "${RES}\icon.ico"
@@ -50,6 +55,7 @@ VIAddVersionKey "LegalCopyright" "TGGAGS"
 
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_COMPONENTS
+!define MUI_PAGE_CUSTOMFUNCTION_LEAVE DirLeave
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
@@ -79,6 +85,15 @@ LangString STR_KEEPDATA ${LANG_ENGLISH} "Also delete your settings, chats and sa
 LangString STR_KEEPDATA ${LANG_RUSSIAN} "Удалить также ваши настройки, чаты и сохранённые изображения?$\r$\n$\r$\nВыберите «Нет», чтобы сохранить их для будущей установки."
 LangString STR_RUNNING ${LANG_ENGLISH} "${PRODUCT} is running. Please close it, then click Retry."
 LangString STR_RUNNING ${LANG_RUSSIAN} "${PRODUCT} сейчас запущен. Закройте его и нажмите «Повтор»."
+
+; Always install into a folder named after the product, so the uninstaller can never remove an unrelated folder
+; (e.g. when someone picks their Desktop or Documents as the target).
+Function DirLeave
+  StrCpy $0 "$INSTDIR" ${PRODUCT_LEN} -${PRODUCT_LEN}
+  ${If} $0 != "${PRODUCT}"
+    StrCpy $INSTDIR "$INSTDIR\${PRODUCT}"
+  ${EndIf}
+FunctionEnd
 
 Function LaunchApp
   ; start un-elevated through Explorer-less ShellExecute so the app inherits the user's normal environment
@@ -123,9 +138,7 @@ Section "$(SEC_MAIN)" SecMain
   WriteRegStr HKCU "${UNINST_KEY}" "QuietUninstallString" '"$INSTDIR\Uninstall.exe" /S'
   WriteRegDWORD HKCU "${UNINST_KEY}" "NoModify" 1
   WriteRegDWORD HKCU "${UNINST_KEY}" "NoRepair" 1
-  ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
-  IntFmt $0 "0x%08X" $0
-  WriteRegDWORD HKCU "${UNINST_KEY}" "EstimatedSize" "$0"
+  WriteRegDWORD HKCU "${UNINST_KEY}" "EstimatedSize" ${SIZE_KB}
 SectionEnd
 
 Section "$(SEC_DESKTOP)" SecDesktop

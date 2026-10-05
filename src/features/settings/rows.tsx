@@ -24,11 +24,17 @@ export function ToggleRow({ title, description, value, onChange, disabled }: { t
   return <Row title={title} description={description}><Switch on={value} onChange={onChange} disabled={disabled} label={typeof title === 'string' ? title : undefined} /></Row>
 }
 
-export function NumberField({ value, onChange, min, max, step = 1, suffix, width = 84 }: { value: number; onChange(v: number): void; min?: number; max?: number; step?: number; suffix?: string; width?: number }) {
-  const [text, setText] = useState(String(value))
-  useEffect(() => { setText(String(value)) }, [value])
-  const commit = () => { const n = parseFloat(text); if (Number.isFinite(n)) { const c = Math.min(max ?? Infinity, Math.max(min ?? -Infinity, n)); onChange(c); setText(String(c)) } else setText(String(value)) }
-  return <span className="row gap6"><input className="input sm" style={{ width }} type="number" value={text} min={min} max={max} step={step} onChange={e => setText(e.target.value)} onBlur={commit} onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }} />{suffix && <span className="subtle small">{suffix}</span>}</span>
+/** `blank`: a value of 0 means “not set” – it is shown empty with a placeholder, and clearing the field stores 0. */
+export function NumberField({ value, onChange, min, max, step = 1, suffix, width = 84, blank, placeholder }: { value: number; onChange(v: number): void; min?: number; max?: number; step?: number; suffix?: string; width?: number; blank?: boolean; placeholder?: string }) {
+  const show = (v: number) => (blank && !v ? '' : String(v))
+  const [text, setText] = useState(show(value))
+  useEffect(() => { setText(show(value)) }, [value]) // eslint-disable-line react-hooks/exhaustive-deps
+  const commit = () => {
+    if (blank && text.trim() === '') { onChange(0); return }
+    const n = parseFloat(text)
+    if (Number.isFinite(n)) { const c = Math.min(max ?? Infinity, Math.max(min ?? -Infinity, n)); onChange(c); setText(String(c)) } else setText(show(value))
+  }
+  return <span className="row gap6"><input className="input sm" style={{ width }} type="number" value={text} min={min} max={max} step={step} placeholder={placeholder ?? (blank ? '—' : undefined)} onChange={e => setText(e.target.value)} onBlur={commit} onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }} />{suffix && <span className="subtle small">{suffix}</span>}</span>
 }
 
 export function TextField({ value, onChange, placeholder, width = 260, mono, password }: { value: string; onChange(v: string): void; placeholder?: string; width?: number | string; mono?: boolean; password?: boolean }) {

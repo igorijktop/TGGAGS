@@ -8,5 +8,5 @@ build-win/
 .DS_Store
 test-results/
 coverage/
-# the signed-off Windows installer is committed on purpose
+# the (unsigned) Windows installer is committed on purpose
 !release/

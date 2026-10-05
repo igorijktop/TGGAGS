@@ -238,7 +238,7 @@ export function Composer({ sessionId, variant = 'panel', autoFocus, placeholder,
         {items.map((it, i) => <button key={it.key} role="option" aria-selected={i === idx} className={cn('mm-row', i === idx && 'on')} onMouseEnter={() => setIdx(i)} onMouseDown={e => { e.preventDefault(); pick(it) }}>
           <span className="mm-ic">{it.kind === 'agent' ? <Bot size={15} /> : it.kind === 'cmd' ? <Slash size={14} /> : it.kind === 'folder' ? <FileIcon name={it.label} dir size={16} /> : <FileIcon name={it.label} size={16} />}</span>
           <span className="mm-label truncate"><Highlight text={it.label} indices={it.kind === 'cmd' ? it.indices : []} />{it.hint && <span className="subtle"> {it.hint}</span>}</span>
-          <span className="mm-detail truncate">{it.detail}</span>
+          <span className={cn('mm-detail truncate', (it.kind === 'file' || it.kind === 'folder') && 'rtl')}>{it.detail}</span>
         </button>)}
       </div>}
       <div className="composer-card">

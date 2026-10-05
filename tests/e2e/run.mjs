@@ -56,8 +56,14 @@ try {
   expect((await page.textContent('.changes-bar')).includes('1 file'), 'changes bar summarises the edit'); log('changes bar shows the edited file')
   await shot('done')
 
+  console.log('questions')
+  await input.click(); await input.fill('ASKME which package manager?'); await page.keyboard.press('Enter')
+  await page.waitForSelector('.sheet.question', { timeout: 20000 }); log('the agent can ask the user a question'); await shot('question')
+  await page.click('.q-opt:has-text("pnpm")'); await page.click('.sheet.question .btn.primary'); await page.waitForSelector('.sheet.question', { state: 'detached', timeout: 10000 })
+  await page.waitForFunction(() => document.body.innerText.includes('package manager you chose'), null, { timeout: 20000 }); log('the answer is sent back and the run continues')
+
   console.log('undo')
-  await page.click('.turn-foot >> text=Undo'); await page.waitForTimeout(800)
+  await page.locator('.turn').first().locator('.turn-foot >> text=Undo').click(); await page.waitForSelector('.dialog'); log('undoing an earlier turn asks for confirmation'); await page.click('.dialog .btn.danger'); await page.waitForTimeout(800)
   expect(readFileSync(join(project, 'src/index.js'), 'utf8') === "console.log('hello')\n", 'undo restored the original file'); log('Undo restores the file')
 
   console.log('navigation')

@@ -10,9 +10,10 @@ npm run dev           # Vite + Electron with reload
 npm run build         # renderer → dist/, main → dist-electron/
 npm run typecheck     # tsc for renderer and node projects — must pass
 npm test              # vitest (needs `npm run build:main` once for the LSP test)
-xvfb-run -a node tests/e2e/smoke.mjs                       # boots the built app headlessly
+xvfb-run -a node tests/e2e/run.mjs                         # end-to-end regression (onboarding, agent run, undo, terminal, themes…)
 xvfb-run -a node tests/e2e/chat-demo.mjs /tmp/out          # full agent run against a mock model + screenshots
 xvfb-run -a node tests/e2e/tour.mjs /tmp/tour              # screenshots of every view
+xvfb-run -a node tests/e2e/packaged.mjs                    # boots the packaged app.asar (after `npm run package:win`)
 npm run installer:win # Windows installer (release/TGGAGS-IDE-Setup.exe), needs makensis
 ```
 

@@ -66,8 +66,8 @@ function ProviderCard({ p, keyState, open, onToggle }: { p: ProviderConfig; keyS
         <div className="mt-head"><span>Model</span><span>Context</span><span>$/1M in · out</span><span>Abilities</span><span /></div>
         {p.models.map(m => <div key={m.id} className="mt-row">
           <span className="mt-name"><input className="mt-input" value={m.name ?? m.id} onChange={e => patchModel(m.id, { name: e.target.value })} /><span className="mono subtle">{m.id}</span></span>
-          <NumberField width={86} value={m.contextWindow ?? 0} min={0} step={1000} onChange={v => patchModel(m.id, { contextWindow: v || undefined })} />
-          <span className="row gap4"><NumberField width={54} value={m.inputPrice ?? 0} min={0} step={0.1} onChange={v => patchModel(m.id, { inputPrice: v })} /><NumberField width={54} value={m.outputPrice ?? 0} min={0} step={0.1} onChange={v => patchModel(m.id, { outputPrice: v })} /></span>
+          <NumberField blank width={86} value={m.contextWindow ?? 0} min={0} step={1000} onChange={v => patchModel(m.id, { contextWindow: v || undefined })} />
+          <span className="row gap4"><NumberField blank width={54} value={m.inputPrice ?? 0} min={0} step={0.1} onChange={v => patchModel(m.id, { inputPrice: v || undefined })} /><NumberField blank width={54} value={m.outputPrice ?? 0} min={0} step={0.1} onChange={v => patchModel(m.id, { outputPrice: v || undefined })} /></span>
           <span className="row gap4">{m.modality === 'chat' ? <>
             <Cap icon={Wrench} tip="Tool calling" on={m.tools !== false} onClick={() => patchModel(m.id, { tools: m.tools === false })} />
             <Cap icon={Eye} tip="Image input" on={!!m.vision} onClick={() => patchModel(m.id, { vision: !m.vision })} />

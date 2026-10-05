@@ -136,8 +136,17 @@ log('app folder ready:', pkgDir, '(' + mb(dirSize(pkgDir)) + ')')
   for (const need of ['/dist/index.html', '/dist-electron/main.cjs', '/dist-electron/preload.cjs', '/package.json']) if (!list.includes(need)) throw new Error('app.asar is missing ' + need)
   const unpacked = join(pkgDir, 'resources/app.asar.unpacked')
   for (const need of ['dist-electron/ts-worker.cjs', 'node_modules/typescript/lib/typescript.js', 'node_modules/@lydell/node-pty-win32-x64']) if (!existsSync(join(unpacked, need))) throw new Error('app.asar.unpacked is missing ' + need)
-  const head = readFileSync(exeOut).subarray(0, 2).toString('latin1')
-  if (head !== 'MZ') throw new Error('Executable is not a valid PE file')
+  // re-open the branded executable like the Windows loader would: it must still parse, and carry our icon and version info
+  const built = readFileSync(exeOut)
+  if (built.subarray(0, 2).toString('latin1') !== 'MZ') throw new Error('Executable is not a valid PE file')
+  const check = ResEdit.NtExecutableResource.from(ResEdit.NtExecutable.from(built, { ignoreCert: true }))
+  const vi = ResEdit.Resource.VersionInfo.fromEntries(check.entries)[0]
+  const langs = vi ? vi.getAllLanguagesForStringValues() : []
+  const strings = langs.length ? vi.getStringValues(langs[0]) : {}
+  if (strings.ProductName !== PRODUCT || strings.ProductVersion !== pkgJson.version) throw new Error('Version info of the executable was not written correctly')
+  const icons = ResEdit.Resource.IconGroupEntry.fromEntries(check.entries)
+  if (!icons.length) throw new Error('The executable has no icon group')
+  log(`executable parsed OK: ${strings.ProductName} ${strings.ProductVersion}, ${icons.length} icon group(s)`)
   log('sanity checks passed')
 }
 if (!args.has('--installer')) process.exit(0)
@@ -147,7 +156,7 @@ const outDir = resolve('release'); mkdirSync(outDir, { recursive: true })
 const outFile = join(outDir, 'TGGAGS-IDE-Setup.exe'); rm(outFile)
 const makensis = process.env.MAKENSIS ?? (process.platform === 'win32' ? ['C:\\Program Files (x86)\\NSIS\\makensis.exe', 'C:\\Program Files\\NSIS\\makensis.exe'].find(existsSync) ?? 'makensis' : 'makensis')
 log('building installer with', makensis)
-run(makensis, ['-V2', `-DVERSION=${pkgJson.version}`, `-DPRODUCT=${PRODUCT}`, `-DEXE=${EXE_NAME}`, `-DSRC=${pkgDir}`, `-DOUT=${outFile}`, `-DRES=${resolve('resources')}`, resolve('scripts/installer.nsi')])
+run(makensis, ['-V2', `-DVERSION=${pkgJson.version}`, `-DPRODUCT=${PRODUCT}`, `-DPRODUCT_LEN=${PRODUCT.length}`, `-DSIZE_KB=${Math.round(dirSize(pkgDir) / 1024)}`, `-DEXE=${EXE_NAME}`, `-DSRC=${pkgDir}`, `-DOUT=${outFile}`, `-DRES=${resolve('resources')}`, resolve('scripts/installer.nsi')])
 const bytes = readFileSync(outFile)
 writeFileSync(outFile + '.sha256', `${createHash('sha256').update(bytes).digest('hex')}  ${'TGGAGS-IDE-Setup.exe'}\n`)
 log('installer:', outFile, mb(bytes.length))

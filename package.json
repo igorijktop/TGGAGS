@@ -16,9 +16,10 @@
     "start": "electron .",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json --noEmit",
     "test": "vitest run",
-    "test:e2e": "node scripts/build-main.mjs && vite build && node tests/e2e/run.mjs",
+    "test:e2e": "node tests/e2e/run.mjs",
     "package:win": "node scripts/package-win.mjs",
-    "installer:win": "node scripts/package-win.mjs --installer"
+    "installer:win": "node scripts/package-win.mjs --installer",
+    "test:packaged": "node tests/e2e/packaged.mjs"
   },
   "devDependencies": {
     "@electron/asar": "^4.3.1",

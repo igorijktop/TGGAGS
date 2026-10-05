@@ -19,7 +19,7 @@ jobs:
       - run: npm run build
       - run: npm run typecheck
       - run: npm test
-      - name: End-to-end smoke test (Electron under Xvfb)
+      - name: End-to-end test (real Electron app + mock model, under Xvfb)
         run: |
           sudo apt-get update && sudo apt-get install -y xvfb libgtk-3-0 libnss3 libasound2t64 libgbm1
-          xvfb-run -a node tests/e2e/smoke.mjs
+          xvfb-run -a node tests/e2e/run.mjs

@@ -1,6 +1,6 @@
 import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { kbHint } from '../../lib/commands'
-import { AlertCircle, ArrowDown, Brain, Search, Check, ChevronRight, Copy, FileDiff, GitFork, Hammer, ListChecks, Maximize2, Minimize2, MoreHorizontal, Pencil, Plus, RotateCcw, Sparkles, Trash2, Undo2, History, Download, Eraser, ShieldQuestion, Wand2 } from 'lucide-react'
+import { AlertCircle, ArrowDown, Brain, Search, Check, ChevronRight, Copy, FileDiff, GitFork, Hammer, ListChecks, Maximize2, Minimize2, MoreHorizontal, Pencil, Plus, Redo2, RotateCcw, Square, Sparkles, Trash2, Undo2, History, Download, Eraser, ShieldQuestion, Wand2 } from 'lucide-react'
 import type { Message, Part, Session, ToolPart } from '@shared/ai'
 import { api } from '../../lib/api'
 import { cn, copyText, formatCost, formatDuration, formatTokens, timeAgo } from '../../lib/util'
@@ -76,7 +76,7 @@ const AssistantBody = memo(function AssistantBody({ msg, sessionId, live }: { ms
       blocks.push(<img key={i} className="msg-img" src={`data:${p.mime};base64,${p.data}`} alt={p.name ?? 'image'} />)
     }
   }
-  return <>{blocks}{msg.error && <div className="msg-error"><AlertCircle size={14} /><span className="selectable">{msg.error}</span></div>}</>
+  return <>{blocks}{msg.finish === 'aborted' && !live && <div className="stopped-note"><Square size={11} fill="currentColor" />Stopped</div>}{msg.error && <div className="msg-error"><AlertCircle size={14} /><span className="selectable">{msg.error}</span></div>}</>
 })
 
 function UserMessage({ msg, sessionId, running }: { msg: Message; sessionId: string; running: boolean }) {
@@ -125,6 +125,9 @@ function TurnFooter({ turn, session, last, running }: { turn: Turn; session: Ses
     const s = await api.ai.sessions.truncateAt(session.id, turn.user.id)
     if (s) { useAi.setState(st => ({ data: { ...st.data, [session.id]: s } })); await useAi.getState().send(t, { sessionId: session.id }) }
   }
+  const [canRedo, setCanRedo] = useState(false)
+  useEffect(() => { if (last && !running) void api.ai.changes.canRedo(session.id).then(setCanRedo).catch(() => undefined) }, [last, running, session.id, changes.length])
+  const redo = async () => { const r = await api.ai.changes.redo(session.id); toast[r.applied ? 'success' : 'info'](r.applied ? `Re-applied ${r.files.length} file(s).` : 'Nothing to redo.'); setCanRedo(false) }
   const added = mine.reduce((n, c) => n + c.added, 0), removed = mine.reduce((n, c) => n + c.removed, 0)
   if (!turn.assistants.length) return null
   return <div className="turn-foot">
@@ -135,6 +138,7 @@ function TurnFooter({ turn, session, last, running }: { turn: Turn; session: Ses
     <span className="grow" />
     {(usage.i + usage.o > 0) && <span className="foot-meta" data-tip={`${usage.i.toLocaleString()} input · ${usage.o.toLocaleString()} output tokens`}>{formatTokens(usage.i + usage.o)} tokens{usage.c > 0 && ` · ${formatCost(usage.c)}`}{dur > 2000 && ` · ${formatDuration(dur)}`}</span>}
     {text && <IconButton icon={copied ? Check : Copy} size="sm" tip="Copy response" onClick={() => { void copyText(text); setCopied(true); setTimeout(() => setCopied(false), 1200) }} />}
+    {!running && last && canRedo && <button className="foot-btn" onClick={() => void redo()} data-tip="Re-apply the changes you undid"><Redo2 size={13} />Redo</button>}
     {!running && turn.user && <IconButton icon={RotateCcw} size="sm" tip="Retry" onClick={() => void retry()} />}
   </div>
 }

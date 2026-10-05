@@ -189,7 +189,7 @@
 .mm-title { padding: 5px 10px 3px; font-size: 10.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--fg-subtle); }
 .mm-row { display: flex; align-items: center; gap: 9px; width: 100%; height: 32px; padding: 0 10px; border-radius: 8px; text-align: left; font-size: 13px; }
 .mm-row.on { background: var(--bg-active); } .mm-ic { display: inline-flex; width: 18px; justify-content: center; color: var(--fg-muted); flex-shrink: 0; }
-.mm-label { flex-shrink: 0; max-width: 55%; font-weight: 500; } .mm-detail { flex: 1; min-width: 0; color: var(--fg-subtle); font-size: 11.5px; text-align: right; direction: rtl; }
+.mm-label { flex-shrink: 0; max-width: 55%; font-weight: 500; } .mm-detail { flex: 1; min-width: 0; color: var(--fg-subtle); font-size: 11.5px; text-align: right; } .mm-detail.rtl { direction: rtl; }
 .model-pop { padding: 6px; } .model-list { max-height: 360px; overflow: auto; }
 .model-row { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 10px; border-radius: 8px; text-align: left; }
 .model-row:hover { background: var(--bg-hover); } .model-row.on { background: var(--accent-soft); } .model-row.dim { opacity: .6; }
@@ -223,3 +223,5 @@
 .suggest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; width: 100%; max-width: 420px; }
 .suggest { display: flex; align-items: center; gap: 9px; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-elevated); text-align: left; font-size: 12.5px; font-weight: 500; color: var(--fg); transition: all .12s; }
 .suggest:hover { border-color: var(--border-strong); background: var(--bg-hover); transform: translateY(-1px); } .suggest svg { color: var(--accent-text); flex-shrink: 0; }
+
+.stopped-note { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; font-size: 11.5px; color: var(--fg-subtle); padding: 2px 9px; border-radius: 10px; background: var(--bg-hover); }
