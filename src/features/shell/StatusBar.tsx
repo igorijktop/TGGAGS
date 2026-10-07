@@ -13,6 +13,7 @@ import { runCommand } from '../../lib/commands'
 import { activeMonacoEditor } from '../../lib/editor-context'
 import { formatTokens } from '../../lib/util'
 import { useLspStatus } from '../../stores/lsp'
+import { revealChat } from '../../lib/chat-nav'
 
 export function StatusBar() {
   const git = useGit(s => s.status)
@@ -49,7 +50,7 @@ export function StatusBar() {
         <MenuButton variant="ghost" className="status-item" tip="End of line sequence" items={[{ label: 'LF', checked: st.eol === 'LF', onClick: () => setEol('LF') }, { label: 'CRLF', checked: st.eol === 'CRLF', onClick: () => setEol('CRLF') }]}>{st.eol}</MenuButton>
         <MenuButton variant="ghost" className="status-item" tip="Language mode" items={setLang}>{monaco.languages.getLanguages().find(l => l.id === st.language)?.aliases?.[0] ?? st.language}</MenuButton>
       </>}
-      <button className="status-item" onClick={() => ui.set({ aiVisible: true })} data-tip={modelName ? 'AI model' : 'No AI model configured'}>
+      <button className="status-item" onClick={() => revealChat()} data-tip={modelName ? 'AI model' : 'No AI model configured'}>
         {running ? <Loader size={12} className="spin-anim" /> : <Sparkles size={13} />}{modelName ?? 'Connect a model'}
         {ctx && <span className="muted">{formatTokens(ctx.used)} / {formatTokens(ctx.window)}</span>}
       </button>

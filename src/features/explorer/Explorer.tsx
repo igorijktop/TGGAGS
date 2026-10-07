@@ -12,6 +12,7 @@ import { Button, EmptyState, Highlight, IconButton, useContextMenu } from '../..
 import { dialogs, toast, useUi } from '../../stores/ui'
 import { runCommand } from '../../lib/commands'
 import type { FileEntry } from '@shared/fs'
+import { revealChat } from '../../lib/chat-nav'
 
 interface Editing { kind: 'rename' | 'file' | 'dir'; path: string }
 
@@ -100,7 +101,7 @@ export function Explorer() {
     for (const d of new Set(paths.map(dirname))) await ws.loadDir(d, true)
   }
 
-  const addToChat = async (paths: string[]) => { for (const p of paths) await useAi.getState().addContext(await api.ai.context.describe(p)); useUi.getState().set({ aiVisible: true }); toast.info(`Added ${paths.length === 1 ? basename(paths[0]) : paths.length + ' items'} to the AI context`) }
+  const addToChat = async (paths: string[]) => { for (const p of paths) await useAi.getState().addContext(await api.ai.context.describe(p)); revealChat(); toast.info(`Added ${paths.length === 1 ? basename(paths[0]) : paths.length + ' items'} to the AI context`) }
 
   const menuFor = (e: FileEntry | null) => {
     const targets = e && selected.includes(e.path) && selected.length > 1 ? selected : e ? [e.path] : []

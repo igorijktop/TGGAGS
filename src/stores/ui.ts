@@ -57,7 +57,7 @@ interface UiState {
 }
 
 export const useUi = create<UiState>((set, get) => ({
-  sidebarView: 'explorer', sidebarVisible: true, sidebarWidth: 290, aiVisible: true, aiWidth: 440, panelVisible: false, panelHeight: 280, panelTab: 'terminal', panelMaximized: false,
+  sidebarView: 'explorer', sidebarVisible: true, sidebarWidth: 290, aiVisible: false, aiWidth: 440, panelVisible: false, panelHeight: 280, panelTab: 'terminal', panelMaximized: false,
   chatFocus: false, zen: false, maximized: false, toasts: [], dialogs: [], contextMenu: null, palette: { open: false, value: '' }, notifications: [],
   set: p => set(p),
   showView(v) { const s = get(); set({ sidebarView: v, sidebarVisible: s.sidebarView === v && s.sidebarVisible && !s.chatFocus ? false : true, chatFocus: false }) },

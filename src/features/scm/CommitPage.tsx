@@ -9,6 +9,7 @@ import { useEditor } from '../../stores/editor'
 import { useGit } from '../../stores/git'
 import { useAi } from '../../stores/ai'
 import { dialogs, toast, useUi } from '../../stores/ui'
+import { revealChat } from '../../lib/chat-nav'
 
 const COLORS: Record<string, string> = { M: 'var(--info)', A: 'var(--success)', D: 'var(--danger)', R: 'var(--info)' }
 
@@ -20,7 +21,7 @@ export function CommitPage({ hash }: { hash: string }) {
   if (c === null) return <div className="page-scroll"><EmptyState icon={GitCommitHorizontal} title="Commit not found" text="It may have been removed by a rebase or an amend." /></div>
   const added = c.files.reduce((n, f) => n + f.added, 0), removed = c.files.reduce((n, f) => n + f.removed, 0)
   const act = async (label: string, fn: () => Promise<string | void>, ok: string) => { try { await useGit.getState().run(label, fn); toast.success(ok) } catch (e) { toast.error((e as Error).message) } }
-  const explain = () => { useUi.getState().set({ aiVisible: true }); void useAi.getState().send(`Explain what commit ${c.short} ("${c.subject}") changes and why. Use git show ${c.hash} to read it.`) }
+  const explain = () => { revealChat(); void useAi.getState().send(`Explain what commit ${c.short} ("${c.subject}") changes and why. Use git show ${c.hash} to read it.`) }
   return <div className="page-scroll"><div className="page narrow">
     <div className="page-head"><div><div className="row gap8 subtle small mono"><GitCommitHorizontal size={14} />{c.hash}<button className="cb-btn" onClick={() => void copyText(c.hash)} data-tip="Copy hash"><Copy size={12} /></button></div>
       <h1 className="serif" style={{ fontSize: 26, marginTop: 6 }}>{c.subject}</h1></div>

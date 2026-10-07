@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef, useState, type DragEvent } from 'react'
-import { ChevronRight, Columns2, Pin, Rows2, X, MoreHorizontal, FileText } from 'lucide-react'
-import { useEditor, type Group, type LayoutNode, type Tab } from '../../stores/editor'
+import { ChevronRight, Columns2, Pin, Rows2, X, MoreHorizontal, FileText, MessageSquare } from 'lucide-react'
+import { useEditor, CHAT_TAB_ID, type Group, type LayoutNode, type Tab } from '../../stores/editor'
 import { useDocs } from '../../lib/docs'
 import { useDiagnostics } from '../../lib/lsp-monaco'
 import { useWorkspace } from '../../stores/workspace'
@@ -14,7 +14,7 @@ import { DiffView } from './DiffView'
 import { BinaryNotice, ImageViewer, MediaViewer } from './Viewers'
 import { PageHost } from './PageHost'
 import { Breadcrumbs } from './Breadcrumbs'
-import { Home } from '../home/Home'
+import { MainChat } from '../ai/MainChat'
 import { useAi } from '../../stores/ai'
 import { toast } from '../../stores/ui'
 
@@ -25,13 +25,16 @@ function TabItem({ group, tab, active, index }: { group: Group; tab: Tab; active
   const deleted = useDocs(s => (tab.path ? s.external[tab.path] === 'deleted' : false))
   const errors = useDiagnostics(s => (tab.path && tab.kind === 'file' ? (s.byPath[tab.path] ?? []).filter(d => d.severity === 'error').length : 0))
   const root = useWorkspace(s => s.root)
+  const isChat = tab.id === CHAT_TAB_ID
+  // a pulsing dot on the Chat tab tells you the agent is working (or needs an answer) while you look at files
+  const chatState = useAi(s => (!isChat ? null : s.permissions.length || s.questions.length ? 'ask' : Object.values(s.running).some(Boolean) ? 'run' : null))
   const ed = useEditor.getState()
   const ctx = useContextMenu()
   const [drop, setDrop] = useState<'before' | 'after' | null>(null)
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => { if (active) ref.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' }) }, [active])
   const closeOthers = () => ed.closeMany(group.id, group.tabs.filter(t => t.id !== tab.id && !t.pinned).map(t => t.id))
-  const items = () => [
+  const items = () => isChat ? [{ label: 'New chat', onClick: () => { void useAi.getState().newChat(); ed.activate(group.id, tab.id) } }] : [
     { label: 'Close', hint: 'Ctrl+W', onClick: () => void ed.closeTab(group.id, tab.id) },
     { label: 'Close Others', disabled: group.tabs.length < 2, onClick: () => void closeOthers() },
     { label: 'Close to the Right', disabled: index >= group.tabs.length - 1, onClick: () => void ed.closeMany(group.id, group.tabs.slice(index + 1).filter(t => !t.pinned).map(t => t.id)) },
@@ -53,10 +56,11 @@ function TabItem({ group, tab, active, index }: { group: Group; tab: Tab; active
       onDragStart={e => { e.dataTransfer.setData(DND, JSON.stringify({ groupId: group.id, tabId: tab.id })); e.dataTransfer.effectAllowed = 'move' }}
       onDragOver={onDragOver} onDragLeave={() => setDrop(null)}
       onDrop={e => { const raw = e.dataTransfer.getData(DND); setDrop(null); if (!raw) return; e.preventDefault(); e.stopPropagation(); const d = JSON.parse(raw) as { groupId: string; tabId: string }; const r = ref.current!.getBoundingClientRect(); ed.moveTab(d.groupId, d.tabId, group.id, e.clientX < r.left + r.width / 2 ? index : index + 1) }}>
-      {tab.kind === 'page' ? <FileText size={14} className="subtle" /> : tab.kind === 'diff' ? <FileIcon name={tab.path ?? tab.title} size={14} /> : <FileIcon name={tab.title} size={15} />}
+      {isChat ? <MessageSquare size={14} className="subtle" /> : tab.kind === 'page' ? <FileText size={14} className="subtle" /> : tab.kind === 'diff' ? <FileIcon name={tab.path ?? tab.title} size={14} /> : <FileIcon name={tab.title} size={15} />}
       <span className={cn('tab-title', deleted && 'deleted')}>{tab.title}</span>
       {errors > 0 && <span className="tab-err" />}
-      {tab.pinned && <Pin size={11} className="tab-pin" />}
+      {chatState && <span className={cn('tab-chat-dot', chatState === 'ask' && 'ask')} data-tip={chatState === 'ask' ? 'The agent is waiting for you' : 'The agent is working'} />}
+      {tab.pinned && !isChat && <Pin size={11} className="tab-pin" />}
       {dirty ? <span className="tab-dirty" /> : null}
       {!tab.pinned && <button className="tab-close" onClick={e => { e.stopPropagation(); void ed.closeTab(group.id, tab.id) }} aria-label="Close tab" style={dirty ? undefined : undefined}><X size={13} /></button>}
     </div>
@@ -117,7 +121,7 @@ function GroupView({ group, single }: { group: Group; single: boolean }) {
         </div>
       </div>
       {tab?.kind === 'file' && <Breadcrumbs tab={tab} />}
-      {!tab ? (single ? <Home /> : <div className="editor-empty"><span>Drop a file here</span></div>) :
+      {!tab ? (single ? <MainChat /> : <div className="editor-empty"><span>Drop a file here</span></div>) :
         tab.kind === 'file' ? <CodeEditor key={group.id} groupId={group.id} tab={tab} focused={focused} /> :
         tab.kind === 'diff' ? <DiffView key={tab.id} tab={tab} groupId={group.id} /> :
         tab.kind === 'image' ? <ImageViewer tab={tab} /> :

@@ -1,7 +1,8 @@
 import { lazy, Suspense } from 'react'
 import { Spinner } from '../../components/ui'
 import type { Tab } from '../../stores/editor'
-import { Home, MarkdownPreview } from '../home/Home'
+import { MarkdownPreview } from '../home/Home'
+import { MainChat } from '../ai/MainChat'
 
 const SettingsPage = lazy(() => import('../settings/SettingsPage').then(m => ({ default: m.SettingsPage })))
 const ModelsPage = lazy(() => import('../models/ModelsPage').then(m => ({ default: m.ModelsPage })))
@@ -17,7 +18,8 @@ export function PageHost({ tab }: { tab: Tab }) {
   const fallback = <div className="center grow"><Spinner size={18} /></div>
   return <Suspense fallback={fallback}>{(() => {
     switch (tab.page) {
-      case 'home': return tab.data?.markdown ? <MarkdownPreview path={tab.data.markdown as string} /> : <Home />
+      case 'chat': return <MainChat />
+      case 'home': return tab.data?.markdown ? <MarkdownPreview path={tab.data.markdown as string} /> : <MainChat />
       case 'settings': return <SettingsPage section={tab.data?.section as string | undefined} />
       case 'models': return <ModelsPage />
       case 'agents': return <AgentsPage agentId={tab.data?.agent as string | undefined} copy={tab.data?.copy as string | undefined} />

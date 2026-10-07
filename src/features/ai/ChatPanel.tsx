@@ -1,5 +1,6 @@
 import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { kbHint } from '../../lib/commands'
+import { focusComposer } from '../../lib/chat-nav'
 import { AlertCircle, ArrowDown, Brain, Search, Check, ChevronRight, Copy, FileDiff, GitFork, Hammer, ListChecks, Maximize2, Minimize2, MoreHorizontal, Pencil, Plus, Redo2, RotateCcw, Square, Sparkles, Trash2, Undo2, History, Download, Eraser, ShieldQuestion, Wand2 } from 'lucide-react'
 import type { Message, Part, Session, ToolPart } from '@shared/ai'
 import { api } from '../../lib/api'
@@ -171,7 +172,7 @@ function EmptyChat() {
 }
 
 // ───────────── header ─────────────
-function Header({ session }: { session: Session | null }) {
+function Header({ session, page }: { session: Session | null; page: boolean }) {
   const sessions = useAi(s => s.sessions)
   const active = useAi(s => s.active)
   const focus = useUi(s => s.chatFocus)
@@ -184,8 +185,10 @@ function Header({ session }: { session: Session | null }) {
   return <div className="chat-head">
     <button className="ch-title" onClick={e => setEl(el ? null : e.currentTarget)}><span className="truncate">{title}</span><ChevronRight size={13} className="ch-caret" /></button>
     <span className="grow" />
-    <IconButton icon={Plus} tip="New chat" kbd={kbHint('ai.newChat')} onClick={() => void useAi.getState().newChat()} />
-    <IconButton icon={focus ? Minimize2 : Maximize2} tip={focus ? 'Back to the editor' : 'Focus on chat'} onClick={() => useUi.getState().set({ chatFocus: !focus })} />
+    {page
+      ? <Button size="sm" variant="ghost" icon={Plus} tip="Start a new conversation" kbd={kbHint('ai.newChat')} onClick={() => { void useAi.getState().newChat(); focusComposer() }}>New chat</Button>
+      : <IconButton icon={Plus} tip="New chat" kbd={kbHint('ai.newChat')} onClick={() => void useAi.getState().newChat()} />}
+    {!page && <IconButton icon={focus ? Minimize2 : Maximize2} tip={focus ? 'Back to the editor' : 'Focus on chat'} onClick={() => useUi.getState().set({ chatFocus: !focus })} />}
     <IconButton icon={MoreHorizontal} tip="More" active={!!more} onClick={e => setMore(more ? null : e.currentTarget)} />
     {el && <Popover anchor={el} placement="bottom-start" onClose={() => setEl(null)} width={330}>
       <div className="menu-title">Recent chats</div>
@@ -242,7 +245,9 @@ function StatusLine({ sessionId }: { sessionId: string }) {
 }
 
 // ───────────── the panel ─────────────
-export function ChatPanel() {
+/** The conversation. `page` is the main-window version (wide column, docked composer); `side` is the optional narrow panel beside the files. */
+export function ChatPanel({ variant = 'side' }: { variant?: 'side' | 'page' }) {
+  const page = variant === 'page'
   const active = useAi(s => s.active)
   const session = useAi(s => (s.active ? s.data[s.active] : undefined)) ?? null
   const running = useAi(s => (s.active ? !!s.running[s.active] : false))
@@ -280,10 +285,10 @@ export function ChatPanel() {
 
   const lastTurn = turns[turns.length - 1]
   return (
-    <div className="chat">
-      <Header session={session} />
+    <div className={cn('chat', page && 'page')}>
+      <Header session={session} page={page} />
       <div className="chat-scroll" ref={scroller} onScroll={onScroll}>
-        {turns.length === 0 ? <EmptyChat /> : <div className="chat-col">
+        {turns.length === 0 ? (page && running ? <div className="chat-col"><StatusLine sessionId={active!} /></div> : <EmptyChat />) : <div className="chat-col">
           {turns.map((t, ti) => {
             const isLast = ti === turns.length - 1
             return <div className="turn" key={t.id}>

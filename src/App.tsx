@@ -34,7 +34,10 @@ export function App() {
     void (async () => {
       await useSettings.getState().load()
       const s = useSettings.getState().settings
-      useUi.setState({ sidebarWidth: s.ui.sidebarWidth, aiWidth: s.ui.aiPanelWidth, panelHeight: s.ui.panelHeight, sidebarVisible: s.ui.sidebarVisible, aiVisible: s.ui.aiPanelVisible, panelVisible: s.ui.panelVisible, sidebarView: (s.ui.lastView as never) || 'explorer' })
+      // Earlier versions docked the conversation on the right; it now lives in the main window, so the side chat starts closed once.
+      const oldLayout = (s.ui.layoutVersion ?? 0) < 2
+      if (oldLayout) void useSettings.getState().update({ ui: { layoutVersion: 2, aiPanelVisible: false } } as never)
+      useUi.setState({ sidebarWidth: s.ui.sidebarWidth, aiWidth: s.ui.aiPanelWidth, panelHeight: s.ui.panelHeight, sidebarVisible: s.ui.sidebarVisible, aiVisible: oldLayout ? false : s.ui.aiPanelVisible, panelVisible: s.ui.panelVisible, sidebarView: (s.ui.lastView as never) || 'explorer' })
       try { setExtraThemes(await api.extensions.themes()) } catch { /* optional */ }
       registerAllCommands(); registerLspProviders(); startDocWatchers(); initEditorIntegrations()
       await useWorkspace.getState().init()

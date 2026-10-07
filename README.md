@@ -44,7 +44,7 @@ You only need internet access for the things that are online by nature: talking 
 
 1. **Connect a model** — *Models* in the left bar → *Add provider*, paste a key (or choose a local server).
 2. **Open a folder** — *File → Open Folder* (or drop it on the window).
-3. **Ask** — type in the message box on the right. `@` adds files, `/` runs commands, the **+** button attaches the open file, selection, terminal output, problems or a web page.
+3. **Ask** — the main window *is* the chat: type in the message box on the welcome screen and it turns into the conversation. It lives in the permanent **Chat** tab, so files open next to it and one click brings it back. `@` adds files, `/` runs commands, the **+** button attaches the open file, selection, terminal output, problems or a web page.
 4. **Review** — edits appear as diffs in the chat. *Undo* reverts a turn, *Review* opens every changed file, *Keep* accepts.
 
 Useful shortcuts (all can be changed in *Settings → Keyboard shortcuts*; they work on any keyboard layout):
@@ -54,7 +54,8 @@ Useful shortcuts (all can be changed in *Settings → Keyboard shortcuts*; they 
 | Command palette | `Ctrl+Shift+P` |
 | Go to file | `Ctrl+P` |
 | New chat | `Ctrl+Shift+N` |
-| Focus the message box · maximise chat | `Ctrl+I` · `Ctrl+Alt+C` |
+| Go to the chat · chat-only focus mode | `Ctrl+I` · `Ctrl+Alt+C` |
+| Optional side chat beside the files | `Ctrl+Alt+B` |
 | Toggle terminal | ``Ctrl+` `` |
 | Find in files | `Ctrl+Shift+F` |
 | Start / continue debugging | `F5` |

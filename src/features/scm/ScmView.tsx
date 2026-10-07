@@ -11,6 +11,7 @@ import { useAi } from '../../stores/ai'
 import { useUi, dialogs, toast, type MenuEntry } from '../../stores/ui'
 import { runCommand } from '../../lib/commands'
 import { pick } from '../shell/Palette'
+import { revealChat } from '../../lib/chat-nav'
 
 const LETTER_COLOR: Record<string, string> = { M: 'var(--info)', A: 'var(--success)', U: 'var(--success)', D: 'var(--danger)', R: 'var(--info)', C: 'var(--danger)' }
 const statusLetter = (f: GitFile, staged: boolean) => (f.conflict ? 'C' : f.untracked ? 'U' : staged ? f.index : f.worktree)
@@ -89,7 +90,7 @@ function FileRow({ f, staged, root }: { f: GitFile; staged: boolean; root: strin
     staged ? { label: 'Unstage', icon: Minus, onClick: unstage } : { label: 'Stage', icon: Plus, onClick: stage },
     ...(!staged ? [{ label: f.untracked ? 'Delete file' : 'Discard changes', icon: Undo2, danger: true, onClick: () => void discard() }] : []), { separator: true },
     { label: 'Add to .gitignore', onClick: () => void guarded('ignore', () => api.git.ignore(rel), 'Added to .gitignore') },
-    { label: 'Add to AI context', icon: Sparkles, onClick: async () => { await useAi.getState().addContext(await api.ai.context.describe(abs)); useUi.getState().set({ aiVisible: true }) } },
+    { label: 'Add to AI context', icon: Sparkles, onClick: async () => { await useAi.getState().addContext(await api.ai.context.describe(abs)); revealChat() } },
     { label: 'Copy path', onClick: () => void copyText(abs) }, { label: 'Reveal in file explorer', onClick: () => void api.fs.reveal(abs) }
   ]
   return <div className="scm-row" onClick={open} onContextMenu={e => ctx(e, menu())} data-tip={rel}>

@@ -17,9 +17,9 @@ import type { PermissionMode } from '@shared/settings'
 import type { LaunchConfig } from '@shared/dev'
 import { createElement } from 'react'
 import { Logo } from '../components/brand'
+import { focusComposer, revealChat, showChat } from '../lib/chat-nav'
 
 const view = (id: string, v: SidebarView, title: string, kb?: string): Command => ({ id, title, category: 'View', keybinding: kb, run: () => useUi.getState().showView(v) })
-const focusComposer = () => window.dispatchEvent(new Event('tgg:focus-composer'))
 
 async function openFolder() {
   const dir = await api.fs.pickFolder('Open project folder')
@@ -41,7 +41,7 @@ async function askAi(prompt: string, o: { selection?: boolean; file?: boolean; a
   const ctx = await gatherEditorContext()
   const ai = useAi.getState()
   if (o.selection && ctx.selection) await ai.addContext({ id: 'sel-' + Date.now(), kind: 'selection', label: `${basename(ctx.selection.path)}:${ctx.selection.startLine}-${ctx.selection.endLine}`, path: ctx.selection.path, range: { startLine: ctx.selection.startLine, endLine: ctx.selection.endLine }, content: ctx.selection.text, tokens: Math.ceil(ctx.selection.text.length / 3.6), enabled: true, pinned: false, priority: 5, auto: false, once: true })
-  useUi.getState().set({ aiVisible: true })
+  revealChat()
   await ai.send(prompt, { agent: o.agent })
 }
 
@@ -79,8 +79,8 @@ export function registerAllCommands(): void {
     { id: 'search.findInFiles', title: 'Find in Files', category: 'Search', keybinding: 'Mod+Shift+F', run: () => { ui().showView('search'); setTimeout(() => window.dispatchEvent(new Event('tgg:focus-search')), 60) } },
     { id: 'view.toggleSidebar', title: 'Toggle Sidebar', category: 'View', keybinding: 'Mod+B', run: () => ui().toggleSidebar() },
     { id: 'view.togglePanel', title: 'Toggle Bottom Panel', category: 'View', keybinding: 'Mod+J', run: () => ui().togglePanel() },
-    { id: 'view.toggleAi', title: 'Toggle AI Chat', category: 'View', keybinding: 'Mod+Alt+B', run: () => ui().toggleAi() },
-    { id: 'view.chatFocus', title: 'Maximize / Restore AI Chat', category: 'View', keybinding: 'Mod+Alt+C', run: () => ui().set({ chatFocus: !ui().chatFocus, aiVisible: true }) },
+    { id: 'view.toggleAi', title: 'Toggle Side Chat (beside the files)', category: 'View', keybinding: 'Mod+Alt+B', run: () => ui().toggleAi() },
+    { id: 'view.chatFocus', title: 'Focus Mode: Chat Only / Restore Layout', category: 'View', keybinding: 'Mod+Alt+C', run: () => { if (ui().chatFocus) ui().set({ chatFocus: false }); else { showChat(); ui().set({ chatFocus: true }); setTimeout(focusComposer, 50) } } },
     { id: 'view.zen', title: 'Toggle Zen Mode', category: 'View', keybinding: 'Mod+K Z', run: () => ui().set({ zen: !ui().zen }) },
     { id: 'view.zoomIn', title: 'Zoom In', category: 'View', keybinding: 'Mod+=', run: () => { const z = Math.min(1.6, +(useSettings.getState().settings.appearance.uiScale + 0.1).toFixed(2)); void useSettings.getState().update({ appearance: { uiScale: z } }) } },
     { id: 'view.zoomOut', title: 'Zoom Out', category: 'View', keybinding: 'Mod+-', run: () => { const z = Math.max(0.7, +(useSettings.getState().settings.appearance.uiScale - 0.1).toFixed(2)); void useSettings.getState().update({ appearance: { uiScale: z } }) } },
@@ -158,15 +158,15 @@ export function registerAllCommands(): void {
       try { const dir = await api.git.clone(url.trim(), dest); ui().dismissToast(id); toast.success('Cloned'); await openWorkspace(dir) } catch (e) { ui().dismissToast(id); toast.error((e as Error).message) }
     } },
     // ── ai
-    { id: 'ai.newChat', title: 'New AI Chat', category: 'AI', keybinding: 'Mod+Shift+N', run: async () => { await useAi.getState().newChat(); ui().set({ aiVisible: true }); setTimeout(focusComposer, 50) } },
-    { id: 'ai.focus', title: 'Focus AI Chat Input', category: 'AI', keybinding: 'Mod+I', run: () => { ui().set({ aiVisible: true }); setTimeout(focusComposer, 30) } },
+    { id: 'ai.newChat', title: 'New AI Chat', category: 'AI', keybinding: 'Mod+Shift+N', run: async () => { await useAi.getState().newChat(); revealChat(); setTimeout(focusComposer, 50) } },
+    { id: 'ai.focus', title: 'Go to Chat', category: 'AI', keybinding: 'Mod+I', run: () => { revealChat(); setTimeout(focusComposer, 30) } },
     { id: 'ai.stop', title: 'Stop AI Generation', category: 'AI', run: () => void useAi.getState().abort() },
     { id: 'ai.compact', title: 'Compact Conversation (summarize history)', category: 'AI', run: async () => { const id = useAi.getState().active; if (!id) return; try { toast.info((await api.ai.compact(id)) ? 'Conversation compacted' : 'Nothing to compact yet') } catch (e) { toast.error((e as Error).message) } } },
     { id: 'ai.undo', title: 'Undo Last AI Changes', category: 'AI', keybinding: 'Mod+Alt+Z', run: async () => { const id = useAi.getState().active; if (!id) return; const r = await api.ai.changes.undoLastTurn(id); toast.info(r.reverted ? `Reverted ${r.files.length} file${r.files.length > 1 ? 's' : ''}` : 'No AI changes to undo') } },
     { id: 'ai.redo', title: 'Redo AI Changes', category: 'AI', run: async () => { const id = useAi.getState().active; if (!id) return; const r = await api.ai.changes.redo(id); toast.info(r.applied ? 'Changes re-applied' : 'Nothing to redo') } },
     { id: 'ai.cycleMode', title: 'Cycle Permission Mode', category: 'AI', run: () => { const order: PermissionMode[] = ['ask', 'auto-edit', 'plan', 'yolo']; const cur = useAi.getState().composer.mode; useAi.getState().setComposer({ mode: order[(order.indexOf(cur) + 1) % order.length] }) } },
-    { id: 'ai.addSelection', title: 'Add Selection to AI Chat', category: 'AI', keybinding: 'Mod+Shift+L', run: async () => { const c = await gatherEditorContext(); if (!c.selection) { toast.info('Select some code first.'); return } await useAi.getState().addContext({ id: 'sel-' + Date.now(), kind: 'selection', label: `${basename(c.selection.path)}:${c.selection.startLine}-${c.selection.endLine}`, path: c.selection.path, range: { startLine: c.selection.startLine, endLine: c.selection.endLine }, content: c.selection.text, tokens: Math.ceil(c.selection.text.length / 3.6), enabled: true, pinned: false, priority: 5, auto: false }); ui().set({ aiVisible: true }); setTimeout(focusComposer, 50) } },
-    { id: 'ai.addFile', title: 'Add Active File to AI Chat', category: 'AI', run: async () => { const p = activeFile(); if (p) { await useAi.getState().addContext(await api.ai.context.describe(p)); ui().set({ aiVisible: true }) } } },
+    { id: 'ai.addSelection', title: 'Add Selection to AI Chat', category: 'AI', keybinding: 'Mod+Shift+L', run: async () => { const c = await gatherEditorContext(); if (!c.selection) { toast.info('Select some code first.'); return } await useAi.getState().addContext({ id: 'sel-' + Date.now(), kind: 'selection', label: `${basename(c.selection.path)}:${c.selection.startLine}-${c.selection.endLine}`, path: c.selection.path, range: { startLine: c.selection.startLine, endLine: c.selection.endLine }, content: c.selection.text, tokens: Math.ceil(c.selection.text.length / 3.6), enabled: true, pinned: false, priority: 5, auto: false }); revealChat(); setTimeout(focusComposer, 50) } },
+    { id: 'ai.addFile', title: 'Add Active File to AI Chat', category: 'AI', run: async () => { const p = activeFile(); if (p) { await useAi.getState().addContext(await api.ai.context.describe(p)); revealChat() } } },
     { id: 'ai.explain', title: 'AI: Explain Selection', category: 'AI', run: () => askAi('Explain this code: what it does, how it works, and anything non-obvious or risky.', { selection: true }) },
     { id: 'ai.refactor', title: 'AI: Refactor Selection', category: 'AI', run: () => askAi('Refactor the selected code to be clearer and more maintainable without changing its behaviour. Apply the change to the file.', { selection: true }) },
     { id: 'ai.tests', title: 'AI: Write Tests for Selection', category: 'AI', run: () => askAi('Write thorough tests for the selected code using the project’s existing test setup, then run them.', { selection: true }) },
@@ -180,7 +180,7 @@ export function registerAllCommands(): void {
     { id: 'settings.languages', title: 'Language Servers', category: 'Preferences', run: () => ed().openPage('settings', { section: 'languages' }) },
     { id: 'bench.open', title: 'Benchmark Models', category: 'AI', run: () => ed().openPage('bench') },
     { id: 'images.open', title: 'Open Image Studio', category: 'AI', run: () => ed().openPage('images') },
-    { id: 'home.open', title: 'Open Home / Welcome', category: 'Help', run: () => ed().openPage('home') },
+    { id: 'home.open', title: 'Open Home / Welcome', category: 'Help', run: () => showChat() },
     { id: 'help.logs', title: 'Open Logs Folder', category: 'Help', run: () => void api.app.openLogs() },
     { id: 'help.userData', title: 'Open Data Folder', category: 'Help', run: () => void api.app.openUserData() },
     { id: 'help.about', title: 'About TGGAGS IDE', category: 'Help', run: async () => { const i = await api.app.info(); await dialogs.alert({ title: 'TGGAGS IDE', message: createElement('div', { className: 'col gap8' }, createElement('div', { className: 'row gap12' }, createElement(Logo, { size: 44 }), createElement('div', null, createElement('div', { style: { color: 'var(--fg)', fontWeight: 600, fontSize: 15 } }, `Version ${i.version}`), createElement('div', { className: 'small' }, 'An AI-native IDE: editor, agents, terminal, Git, debugger and more.'))), createElement('div', { className: 'small mono', style: { lineHeight: 1.7 } }, `Electron ${i.electron} · Chromium ${i.chrome} · Node ${i.node}\n${i.platform} ${i.arch} · ${i.secureStorage ? 'OS keychain secured keys' : 'basic key storage'}\nData: ${i.userData}`)) }) } }

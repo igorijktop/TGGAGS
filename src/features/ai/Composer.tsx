@@ -37,10 +37,10 @@ function readImage(file: File): Promise<ImageData | null> {
   })
 }
 
-export interface ComposerProps { sessionId: string | null; variant?: 'panel' | 'hero'; autoFocus?: boolean; placeholder?: string; onSubmitted?(): void; /** use a separate draft (e.g. the home page) instead of the chat's own */ draftKey?: string }
+export interface ComposerProps { sessionId: string | null; variant?: 'panel' | 'hero'; autoFocus?: boolean; placeholder?: string }
 
-export function Composer({ sessionId, variant = 'panel', autoFocus, placeholder, onSubmitted, draftKey }: ComposerProps) {
-  const key = draftKey ?? sessionId ?? 'new'
+export function Composer({ sessionId, variant = 'panel', autoFocus, placeholder }: ComposerProps) {
+  const key = sessionId ?? 'new'
   const draft = useAi(s => s.drafts[key]) ?? EMPTY
   const composer = useAi(s => s.composer)
   const running = useAi(s => (sessionId ? !!s.running[sessionId] : false))
@@ -175,8 +175,6 @@ export function Composer({ sessionId, variant = 'panel', autoFocus, placeholder,
       if (handled) return
     }
     const mentions = draft.mentions.filter(m => m.kind === 'url' || text.includes('@' + (m.kind === 'agent' ? m.value : relativeTo(root, m.value))))
-    onSubmitted?.()
-    if (draftKey) { set({ text: '', images: [], mentions: [] }); await useAi.getState().newChat() } // the home page always starts a fresh chat
     await useAi.getState().send(text, { images: draft.images, mentions, sessionId: sessionId ?? undefined })
   }
   const runSlash = async (name: string, args: string): Promise<boolean> => {
@@ -191,9 +189,7 @@ export function Composer({ sessionId, variant = 'panel', autoFocus, placeholder,
     }
     const exp = await api.commands.expand(name, args)
     if (!exp) return false
-    onSubmitted?.()
     clear()
-    if (draftKey) await ai.newChat()
     await ai.send(exp.text, { agent: exp.agent, sessionId: sessionId ?? undefined })
     return true
   }

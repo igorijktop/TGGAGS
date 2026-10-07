@@ -15,6 +15,7 @@ import { useAi } from '../../stores/ai'
 import { useDiagnostics } from '../../lib/lsp-monaco'
 import { FileIcon } from '../../lib/icons'
 import { TerminalView } from './TerminalView'
+import { revealChat } from '../../lib/chat-nav'
 
 // ───────────── terminals ─────────────
 function Terminals() {
@@ -50,8 +51,8 @@ function Problems() {
   const [filter, setFilter] = useState<Sev>('all')
   const groups = useMemo(() => Object.entries(byPath).map(([path, list]) => ({ path, list: list.filter(d => d.severity !== 'hint' && (filter === 'all' || d.severity === filter)).sort((a, b) => a.line - b.line) })).filter(g => g.list.length).sort((a, b) => a.path.localeCompare(b.path)), [byPath, filter])
   const total = groups.reduce((n, g) => n + g.list.length, 0)
-  const fixWithAi = (path: string, d: LspDiagnostic) => { useUi.getState().set({ aiVisible: true }); void useAi.getState().send(`Fix this problem in ${relativeTo(root, path)}:${d.line}: ${d.message.split('\n')[0]}`) }
-  const fixAll = () => { const lines = groups.flatMap(g => g.list.filter(d => d.severity === 'error').map(d => `${relativeTo(root, g.path)}:${d.line} ${d.message.split('\n')[0]}`)).slice(0, 60); if (!lines.length) return; useUi.getState().set({ aiVisible: true }); void useAi.getState().send(`Fix these errors:\n${lines.join('\n')}`) }
+  const fixWithAi = (path: string, d: LspDiagnostic) => { revealChat(); void useAi.getState().send(`Fix this problem in ${relativeTo(root, path)}:${d.line}: ${d.message.split('\n')[0]}`) }
+  const fixAll = () => { const lines = groups.flatMap(g => g.list.filter(d => d.severity === 'error').map(d => `${relativeTo(root, g.path)}:${d.line} ${d.message.split('\n')[0]}`)).slice(0, 60); if (!lines.length) return; revealChat(); void useAi.getState().send(`Fix these errors:\n${lines.join('\n')}`) }
   return <div className="col grow" style={{ minHeight: 0 }}>
     <div className="panel-sub"><Segmented<Sev> value={filter} options={[{ value: 'all', label: 'All' }, { value: 'error', label: 'Errors' }, { value: 'warning', label: 'Warnings' }]} onChange={setFilter} /><span className="grow" /><Button size="sm" variant="soft" icon={Sparkles} disabled={!groups.some(g => g.list.some(d => d.severity === 'error'))} onClick={fixAll}>Fix errors with AI</Button></div>
     <div className="panel-scroll">

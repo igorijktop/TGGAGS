@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Activity, Brain, ChevronRight, Eye, Gauge, KeyRound, Plus, RefreshCw, Trash2, Wrench, Zap, Check, CircleAlert, Loader2 } from 'lucide-react'
+import { Activity, Brain, ChevronRight, Eye, Gauge, Image as ImageIcon, KeyRound, Plus, RefreshCw, Trash2, Wrench, Zap, Check, CircleAlert, Loader2 } from 'lucide-react'
 import type { ModelInfo, ModelRef, ProviderConfig, RouterRule } from '@shared/settings'
 import { api } from '../../lib/api'
 import { cn, uid } from '../../lib/util'
-import { Badge, Button, EmptyState, IconButton, Switch } from '../../components/ui'
+import { Badge, Button, EmptyState, IconButton, Segmented, Switch } from '../../components/ui'
 import { dialogs, toast } from '../../stores/ui'
 import { useSettings } from '../../stores/settings'
 import { useEditor } from '../../stores/editor'
@@ -25,8 +25,11 @@ function ProviderCard({ p, keyState, open, onToggle }: { p: ProviderConfig; keyS
   const [busy, setBusy] = useState<'test' | 'discover' | null>(null)
   const [res, setRes] = useState<{ ok: boolean; text: string } | null>(null)
   const [newModel, setNewModel] = useState('')
+  const [newKind, setNewKind] = useState<'chat' | 'image' | null>(null) // null = guess from the model id / provider
   const hasKey = keyState !== 'none'
   const patch = (x: Partial<ProviderConfig>) => void updateProvider({ ...p, ...x })
+  const kind = newKind ?? guessKind(p.protocol, newModel)
+  const newModelEntry = (): ModelInfo => kind === 'image' ? { id: newModel.trim(), modality: 'image' } : { id: newModel.trim(), modality: 'chat', tools: true }
   const patchModel = (id: string, x: Partial<ModelInfo>) => patch({ models: p.models.map(m => (m.id === id ? { ...m, ...x } : m)) })
   const saveKey = async () => { await api.providers.setKey(p.id, key); setKey(''); keysChanged(); toast.success(key.trim() ? 'Key saved.' : 'Key removed.') }
   const test = async () => { setBusy('test'); setRes(null); try { const r = await api.providers.test(p, key.trim() || undefined); setRes({ ok: r.ok, text: r.ok ? `Connected in ${r.ms} ms${r.models !== undefined ? ` · ${r.models} models available` : ''}` : r.message }) } catch (e) { setRes({ ok: false, text: (e as Error).message }) } finally { setBusy(null) } }
@@ -71,11 +74,12 @@ function ProviderCard({ p, keyState, open, onToggle }: { p: ProviderConfig; keyS
           <span className="row gap4">{m.modality === 'chat' ? <>
             <Cap icon={Wrench} tip="Tool calling" on={m.tools !== false} onClick={() => patchModel(m.id, { tools: m.tools === false })} />
             <Cap icon={Eye} tip="Image input" on={!!m.vision} onClick={() => patchModel(m.id, { vision: !m.vision })} />
-            <Cap icon={Brain} tip="Reasoning" on={!!m.reasoning} onClick={() => patchModel(m.id, { reasoning: !m.reasoning })} /></> : <Badge kind="info">image</Badge>}</span>
+            <Cap icon={Brain} tip="Reasoning" on={!!m.reasoning} onClick={() => patchModel(m.id, { reasoning: !m.reasoning })} />
+            <Cap icon={ImageIcon} tip="This is an image-generation model" on={false} onClick={() => patchModel(m.id, { modality: 'image', tools: undefined, vision: undefined, reasoning: undefined })} /></> : <button className="badge-btn" data-tip="Image model — click to treat it as a text model" onClick={() => patchModel(m.id, { modality: 'chat', tools: true })}><Badge kind="info">image</Badge></button>}</span>
           <IconButton icon={Trash2} size="sm" tip="Remove model" onClick={() => patch({ models: p.models.filter(x => x.id !== m.id) })} />
         </div>)}
-        <div className="mt-add"><input className="input sm mono" placeholder="Add a model by its ID, e.g. gpt-5-mini" value={newModel} onChange={e => setNewModel(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && newModel.trim()) { patch({ models: [...p.models, { id: newModel.trim(), modality: p.protocol === 'stability' || p.protocol === 'a1111' ? 'image' : 'chat', tools: true }] }); setNewModel('') } }} />
-          <Button size="sm" icon={Plus} disabled={!newModel.trim()} onClick={() => { patch({ models: [...p.models, { id: newModel.trim(), modality: p.protocol === 'stability' || p.protocol === 'a1111' ? 'image' : 'chat', tools: true }] }); setNewModel('') }}>Add</Button></div>
+        <div className="mt-add"><Segmented<'chat' | 'image'> value={kind} onChange={setNewKind} options={[{ value: 'chat', label: 'Text' }, { value: 'image', label: 'Image', tip: 'For image generation (Image Studio and the agent’s image tool)' }]} /><input className="input sm mono" placeholder="Add a model by its ID, e.g. gpt-5-mini or gpt-image-1" value={newModel} onChange={e => setNewModel(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && newModel.trim()) { patch({ models: [...p.models, newModelEntry()] }); setNewModel(''); setNewKind(null) } }} />
+          <Button size="sm" icon={Plus} disabled={!newModel.trim()} onClick={() => { patch({ models: [...p.models, newModelEntry()] }); setNewModel(''); setNewKind(null) }}>Add</Button></div>
       </div>
     </div>}
   </div>
@@ -120,6 +124,10 @@ function Routing() {
     </Group>
   </>
 }
+
+const IMAGE_ID = /(dall-?e|gpt-image|imagen|stable-?diffusion|\bsdxl\b|\bsd3|flux|midjourney|nano-banana|image(-|$)|-image|ideogram|recraft)/i
+/** Image models are told apart by provider protocol or by a telltale model id; the user can always override it. */
+const guessKind = (protocol: string, id: string): 'chat' | 'image' => (protocol === 'stability' || protocol === 'a1111' || IMAGE_ID.test(id) ? 'image' : 'chat')
 
 export function ModelsPage() {
   const providers = useSettings(s => s.settings.providers)

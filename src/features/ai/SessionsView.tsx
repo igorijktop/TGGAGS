@@ -7,6 +7,7 @@ import { cn, copyText, timeAgo } from '../../lib/util'
 import { Button, EmptyState, IconButton, useContextMenu } from '../../components/ui'
 import { useAi } from '../../stores/ai'
 import { dialogs, toast, useUi } from '../../stores/ui'
+import { focusComposer, revealChat } from '../../lib/chat-nav'
 
 function bucket(ts: number): string {
   const d = new Date(ts), n = new Date()
@@ -30,14 +31,14 @@ export function SessionsView() {
     for (const s of list) { const b = bucket(s.updatedAt); const g = out.find(x => x.name === b); if (g) g.items.push(s); else out.push({ name: b, items: [s] }) }
     return out
   }, [sessions, q])
-  const open = (id: string) => { void useAi.getState().open(id); useUi.getState().set({ aiVisible: true, chatFocus: false }) }
+  const open = (id: string) => { void useAi.getState().open(id); revealChat() }
   const rename = async (s: SessionMeta) => { const t = await dialogs.prompt({ title: 'Rename chat', initial: s.title, confirmLabel: 'Rename' }); if (t?.trim()) { await api.ai.sessions.rename(s.id, t.trim()); await useAi.getState().loadSessions() } }
   const del = async (s: SessionMeta) => { if (await dialogs.confirm({ title: `Delete “${s.title}”?`, message: 'This chat is removed for good. File changes already made are not reverted.', confirmLabel: 'Delete', danger: true })) await useAi.getState().removeSession(s.id) }
   return <>
-    <div className="sb-head"><h2>AI Chats</h2><IconButton icon={MessageSquarePlus} tip="New chat" kbd={kbHint('ai.newChat')} size="sm" onClick={() => { void useAi.getState().newChat(); useUi.getState().set({ aiVisible: true }); window.dispatchEvent(new Event('tgg:focus-composer')) }} /></div>
+    <div className="sb-head"><h2>AI Chats</h2><IconButton icon={MessageSquarePlus} tip="New chat" kbd={kbHint('ai.newChat')} size="sm" onClick={() => { void useAi.getState().newChat(); revealChat(); focusComposer() }} /></div>
     <div className="sb-pad" style={{ paddingTop: 0 }}><div className="search-input"><Search size={13} /><input className="input sm" placeholder="Search chats…" value={q} onChange={e => setQ(e.target.value)} /></div></div>
     <div className="sb-body" style={{ paddingBottom: 16 }}>
-      {sessions.length === 0 && <EmptyState icon={MessagesSquare} title="No chats yet" text="Chats for this project show up here, so you can pick up where you left off."><Button variant="primary" onClick={() => { void useAi.getState().newChat(); window.dispatchEvent(new Event('tgg:focus-composer')) }}>Start a chat</Button></EmptyState>}
+      {sessions.length === 0 && <EmptyState icon={MessagesSquare} title="No chats yet" text="Chats for this project show up here, so you can pick up where you left off."><Button variant="primary" onClick={() => { void useAi.getState().newChat(); revealChat(); focusComposer() }}>Start a chat</Button></EmptyState>}
       {sessions.length > 0 && groups.length === 0 && <div className="subtle" style={{ padding: 20, textAlign: 'center' }}>No chats match “{q}”.</div>}
       {groups.map(g => <div key={g.name}>
         <div className="section-title" style={{ padding: '10px 16px 4px' }}>{g.name}</div>

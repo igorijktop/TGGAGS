@@ -8,7 +8,7 @@ import { dialogs, toast } from './ui'
 import { useWorkspace } from './workspace'
 import { Button } from '../components/ui'
 
-export type PageId = 'home' | 'settings' | 'models' | 'agents' | 'images' | 'bench' | 'extension' | 'changes' | 'github-pr' | 'commit'
+export type PageId = 'chat' | 'home' | 'settings' | 'models' | 'agents' | 'images' | 'bench' | 'extension' | 'changes' | 'github-pr' | 'commit'
 export type TabKind = 'file' | 'diff' | 'image' | 'media' | 'page' | 'binary' | 'preview'
 
 export interface DiffSpec {
@@ -76,8 +76,11 @@ interface EditorState {
   restore(): Promise<void>
 }
 
-const newGroup = (): Group => ({ id: uid('g-'), tabs: [], activeId: null })
-const first = newGroup()
+/** The conversation lives in a permanent first tab of the main window — it cannot be closed, only left. */
+export const CHAT_TAB_ID = 'page:chat'
+const chatTab = (): Tab => ({ id: CHAT_TAB_ID, kind: 'page', page: 'chat', title: 'Chat', preview: false, pinned: true })
+const newGroup = (withChat = false): Group => withChat ? { id: uid('g-'), tabs: [chatTab()], activeId: CHAT_TAB_ID } : { id: uid('g-'), tabs: [], activeId: null }
+const first = newGroup(true)
 const initialStatus: EditorStatus = { path: null, line: 1, col: 1, selected: 0, selLines: 0, language: 'plaintext', eol: 'LF', encoding: 'UTF-8', tabSize: 2, insertSpaces: true }
 
 function mapLeaf(node: LayoutNode, groupId: string, fn: (leaf: LayoutNode) => LayoutNode): LayoutNode {
@@ -174,7 +177,7 @@ export const useEditor = create<EditorState>((set, get) => {
         const t = g.tabs.find(x => x.id === id)
         if (t) { set({ groups: { ...s.groups, [g.id]: { ...g, activeId: id, tabs: g.tabs.map(x => x.id === id ? { ...x, data: { ...x.data, ...data } } : x) } }, activeGroup: g.id }); pushHistory(g.id, id); return }
       }
-      const titles: Record<PageId, string> = { home: 'Home', settings: 'Settings', models: 'Models', agents: 'Agents', images: 'Image Studio', bench: 'Benchmarks', extension: 'Extension', changes: 'Changes', 'github-pr': 'Pull request', commit: 'Commit' }
+      const titles: Record<PageId, string> = { chat: 'Chat', home: 'Home', settings: 'Settings', models: 'Models', agents: 'Agents', images: 'Image Studio', bench: 'Benchmarks', extension: 'Extension', changes: 'Changes', 'github-pr': 'Pull request', commit: 'Commit' }
       place({ id, kind: 'page', page, title: title ?? titles[page], preview: false, pinned: false, data })
     },
 
@@ -203,7 +206,7 @@ export const useEditor = create<EditorState>((set, get) => {
       const s = get()
       const g = s.groups[groupId]
       const tab = g?.tabs.find(t => t.id === tabId)
-      if (!g || !tab) return true
+      if (!g || !tab || tab.id === CHAT_TAB_ID) return true
       const stillOpenElsewhere = Object.values(s.groups).some(o => o.id !== groupId && o.tabs.some(t => t.id === tabId))
       if (tab.kind === 'file' && tab.path && !force && !stillOpenElsewhere && useDocs.getState().dirty[tab.path]) {
         const r = await promptSave([tab.title])
@@ -249,7 +252,7 @@ export const useEditor = create<EditorState>((set, get) => {
 
     pinTab(groupId, tabId, pin) {
       const s = get(); const g = s.groups[groupId]
-      if (!g) return
+      if (!g || tabId === CHAT_TAB_ID) return
       const tab = g.tabs.find(t => t.id === tabId)
       if (!tab) return
       const rest = g.tabs.filter(t => t.id !== tabId)
@@ -291,7 +294,7 @@ export const useEditor = create<EditorState>((set, get) => {
       if (!g) return
       const active = g.tabs.find(t => t.id === g.activeId)
       const ng = newGroup()
-      if (active) { ng.tabs = [{ ...active, preview: false, pinned: false }]; ng.activeId = active.id }
+      if (active && active.id !== CHAT_TAB_ID) { ng.tabs = [{ ...active, preview: false, pinned: false }]; ng.activeId = active.id }
       const leaf: LayoutNode = { type: 'leaf', groupId: ng.id }
       const layout = mapLeaf(s.layout, gid, l => ({ type: 'split', id: uid('s-'), dir, children: [l, leaf], sizes: [0.5, 0.5] }))
       // flatten when the parent already splits in the same direction
@@ -339,7 +342,7 @@ export const useEditor = create<EditorState>((set, get) => {
       for (const g of Object.values(get().groups)) for (const t of g.tabs) if (t.path === path || t.path?.startsWith(path + '/') || t.path?.startsWith(path + '\\')) void get().closeTab(g.id, t.id, true)
     },
     reset() {
-      const g = newGroup()
+      const g = newGroup(true)
       for (const p of Object.keys(useDocs.getState().dirty)) closeDoc(p)
       set({ groups: { [g.id]: g }, layout: { type: 'leaf', groupId: g.id }, activeGroup: g.id, closed: [], history: [], historyIdx: -1, status: initialStatus })
     },
@@ -349,9 +352,9 @@ export const useEditor = create<EditorState>((set, get) => {
       try {
         const raw = localStorage.getItem('tabs:' + root)
         if (!raw) return
-        const { paths, active } = JSON.parse(raw) as { paths: string[]; active?: string }
+        const { paths } = JSON.parse(raw) as { paths: string[] }
         for (const p of paths.slice(0, 12)) { const st = await api.fs.stat(p); if (st.exists) await get().openFile(p, { pin: true }) }
-        if (active) { const g = get().groups[get().activeGroup]; if (g.tabs.some(t => t.id === active)) get().activate(g.id, active) }
+        get().openPage('chat') // the app always starts on the conversation; the restored files wait in their tabs
       } catch { /* ignore */ }
     }
   }

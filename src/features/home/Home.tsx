@@ -13,6 +13,7 @@ import { useUi } from '../../stores/ui'
 import { useWorkspace } from '../../stores/workspace'
 import { runCommand } from '../../lib/commands'
 import { Composer } from '../ai/Composer'
+import { ContextBar } from '../ai/ContextBar'
 import { Markdown } from '../ai/Markdown'
 import { useChatModels } from '../ai/Selectors'
 import { allDocs, useDocs } from '../../lib/docs'
@@ -73,6 +74,7 @@ export function Home() {
   const git = useGit(s => s.status)
   const recent = useSettings(s => s.settings.ui.recentProjects)
   const sessions = useAi(s => s.sessions)
+  const active = useAi(s => s.active) // an empty chat that already carries context (files added from the explorer, …)
   const models = useChatModels()
   const [proj, setProj] = useState<HTMLElement | null>(null)
   const quick = [
@@ -86,7 +88,10 @@ export function Home() {
   return <div className="page-scroll"><div className="home">
     <div className="home-hero"><Mascot size={54} /><h1 className="serif">{root ? <>{greeting()}.<br /><span>What shall we build?</span></> : <>Let’s get started.<br /><span>Open a project to begin.</span></>}</h1></div>
     {models.length === 0 && <div className="home-banner"><Sparkles size={16} /><div className="grow"><b>Connect an AI model</b><span> — add a provider and key to chat, edit code with an agent and generate images. Keys never leave this computer.</span></div><Button variant="primary" size="sm" onClick={() => useEditor.getState().openPage('models', undefined, 'Models & providers')}>Connect</Button></div>}
-    <Composer sessionId={null} draftKey="home" variant="hero" autoFocus placeholder={root ? 'Describe what you want to build or fix…' : 'Ask anything — or open a project folder for the agent to work in'} onSubmitted={() => useUi.getState().set({ aiVisible: true, chatFocus: false })} />
+    <div className="hero-compose">
+      <ContextBar sessionId={active} />
+      <Composer sessionId={active} variant="hero" autoFocus placeholder={root ? 'Describe what you want to build or fix…' : 'Ask anything — or open a project folder for the agent to work in'} />
+    </div>
     <div className="home-chips">
       <button className="chip clickable" onClick={e => setProj(proj ? null : e.currentTarget)}><FolderOpen size={13} />{root ? name : 'No folder open'}<ChevronDown size={12} /></button>
       {git?.isRepo && <button className="chip clickable" onClick={() => runCommand('git.checkout')}><GitBranch size={13} />{git.branch ?? 'detached'}</button>}
@@ -100,7 +105,7 @@ export function Home() {
     <div className="quick-grid">{quick.map(q => <button key={q.title} className="quick" onClick={q.run}><span className="q-ic"><q.icon size={17} /></span><span className="q-main"><span className="q-title">{q.title}</span><span className="q-text">{q.text}</span></span></button>)}</div>
     <div className="home-two">
       <section className="card home-card"><div className="hc-head"><h3>Recent chats</h3><button className="link-btn small" onClick={() => useUi.getState().showView('ai')}>See all</button></div>
-        {sessions.length === 0 ? <div className="subtle small" style={{ padding: '10px 2px' }}>Your conversations will appear here.</div> : sessions.slice(0, 5).map(s => <button key={s.id} className="list-row" onClick={() => { void useAi.getState().open(s.id); useUi.getState().set({ aiVisible: true, chatFocus: false }) }}><History size={14} className="subtle" /><span className="truncate grow">{s.title}</span><span className="subtle small">{timeAgo(s.updatedAt)}</span></button>)}
+        {sessions.length === 0 ? <div className="subtle small" style={{ padding: '10px 2px' }}>Your conversations will appear here.</div> : sessions.slice(0, 5).map(s => <button key={s.id} className="list-row" onClick={() => void useAi.getState().open(s.id)}><History size={14} className="subtle" /><span className="truncate grow">{s.title}</span><span className="subtle small">{timeAgo(s.updatedAt)}</span></button>)}
       </section>
       <section className="card home-card"><div className="hc-head"><h3>Recent projects</h3><button className="link-btn small" onClick={() => runCommand('file.openFolder')}>Open…</button></div>
         {recent.length === 0 ? <div className="subtle small" style={{ padding: '10px 2px' }}>Projects you open will be listed here.</div> : recent.slice(0, 5).map(p => <button key={p} className="list-row" onClick={() => void openWorkspace(p)} data-tip={p}><FolderOpen size={14} className="subtle" /><span className="truncate grow">{basename(p)}</span></button>)}

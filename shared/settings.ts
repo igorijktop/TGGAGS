@@ -199,6 +199,8 @@ export interface Settings {
     recentProjects: string[]
     lastProject: string | null
     onboarded: boolean
+    /** 2 = the conversation lives in the main window and the side chat is optional (older installs had it docked on the right) */
+    layoutVersion: number
   }
 }
 
@@ -303,8 +305,8 @@ export function defaultSettings(): Settings {
     extensions: { disabled: [], registryUrl: '' },
     keybindings: {},
     ui: {
-      sidebarWidth: 290, aiPanelWidth: 440, panelHeight: 280, sidebarVisible: true, aiPanelVisible: true, panelVisible: false,
-      lastView: 'explorer', recentProjects: [], lastProject: null, onboarded: false
+      sidebarWidth: 290, aiPanelWidth: 440, panelHeight: 280, sidebarVisible: true, aiPanelVisible: false, panelVisible: false,
+      lastView: 'explorer', recentProjects: [], lastProject: null, onboarded: false, layoutVersion: 0
     }
   }
 }

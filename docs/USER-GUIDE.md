@@ -8,6 +8,8 @@
 
 ## Talking to the agent
 
+* The conversation happens in the **main window**, in the permanent **Chat** tab (first tab, it cannot be closed). A new chat shows the welcome screen; once you send a message it becomes the full conversation. Files you open get their own tabs next to it — a pulsing dot on the Chat tab tells you the agent is still working or waiting for you. *New chat* (`Ctrl+Shift+N`) starts over; *AI Chats* in the left bar lists earlier ones.
+* Want the chat beside a file instead? `Ctrl+Alt+B` opens an optional side chat that shows while a file tab is active.
 * Press **Enter** to send, **Shift+Enter** for a new line. While the agent is working, new messages are queued.
 * `@` mentions files, folders and agents (`@reviewer please check src/`). `/` lists commands (`/review`, `/fix`, `/test`, `/explain`, `/plan`, `/init`, `/compact`, `/undo`…).
 * **+** attaches the current file, the editor selection, terminal output, problems, uncommitted changes or a web page. Paste or drop images to show the model screenshots.
@@ -41,6 +43,8 @@ Each assistant turn shows the files it changed. **Undo** reverts that turn; **Re
 *Run & Debug* starts the current JavaScript file (or a launch configuration) with or without the debugger. The **Project** tab lists scripts from `package.json`, the test command, dependencies (with an update check) and deploy helpers. Output goes to the terminal or the *Debug console*.
 
 ## Images
+
+In *Models → your provider* add models by ID and pick **Text** or **Image** (the type is also guessed from the ID, e.g. `gpt-image-1`); the 🖼 button on a model row switches it to an image model. Image models appear in the studio and in *Default image model*.
 
 *Images* opens the studio: describe a picture, edit one by painting over the part to change, make variations, upscale, describe it or read the text in it. Everything lands in the library.
 

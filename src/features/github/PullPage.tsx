@@ -9,6 +9,7 @@ import { dialogs, toast, useUi } from '../../stores/ui'
 import { Markdown } from '../ai/Markdown'
 import { FileIcon } from '../../lib/icons'
 import { basename } from '../../lib/util'
+import { revealChat } from '../../lib/chat-nav'
 
 interface Data { pull: GhPull; files: { path: string; status: string; additions: number; deletions: number; patch?: string }[]; comments: GhComment[]; checks: GhCheck[] }
 
@@ -26,7 +27,7 @@ export function PullPage({ number }: { number: number }) {
   if (d === null) return <div className="page-scroll"><EmptyState icon={GitPullRequest} title="Pull request not found" text="Check that you’re signed in to GitHub and the project has a GitHub remote." /></div>
   const p = d.pull
   const merge = async (method: 'merge' | 'squash' | 'rebase') => { if (!(await dialogs.confirm({ title: `${method[0].toUpperCase() + method.slice(1)} pull request #${p.number}?`, message: `${p.head} will be merged into ${p.base}.`, confirmLabel: 'Merge' }))) return; try { await api.github.mergePull(p.number, method); toast.success('Merged.'); load() } catch (e) { toast.error((e as Error).message) } }
-  const review = () => { useUi.getState().set({ aiVisible: true }); void useAi.getState().send(`Review pull request #${p.number} “${p.title}” (${p.head} → ${p.base}). Use the github tool to read its files and comments. Point out bugs, risks and missing tests, ordered by severity. Do not change any files.`) }
+  const review = () => { revealChat(); void useAi.getState().send(`Review pull request #${p.number} “${p.title}” (${p.head} → ${p.base}). Use the github tool to read its files and comments. Point out bugs, risks and missing tests, ordered by severity. Do not change any files.`) }
   const post = async () => { if (!comment.trim()) return; try { await api.github.comment(p.number, comment.trim()); setComment(''); load() } catch (e) { toast.error((e as Error).message) } }
   const state = p.merged ? 'merged' : p.state
   return <div className="page-scroll"><div className="page narrow">
