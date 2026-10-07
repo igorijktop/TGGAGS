@@ -1,8 +1,8 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "file": "TGGAGS-IDE-Setup.exe",
-  "sha256": "ecdfc0b642eecb5b355d1c20bcf237119901c795b454eaa83b8a8ab09f1e36da",
-  "size": 99734960,
+  "sha256": "dd28df8acb09c41e8a679559e90b33510c3e3a3eec635302c112ab9d8b8690e5",
+  "size": 99737498,
   "date": "2026-10-07",
-  "notes": "- **Conversation in the main window.** The chat is now the main window itself (permanent *Chat* tab); the side chat is optional (`Ctrl+Alt+B`).\n- **Update button.** The app checks for a newer version and shows an **Update** button in the title bar. One click downloads the installer (checksum-verified) and installs it, then restarts the app. *Settings → About* has *Check for updates* and an automatic-check switch.\n- **Image models.** Models can now be added as *Text* or *Image* for every provider (the type is guessed from the model ID), and switched later."
+  "notes": "- Maintenance release (version bump) — also shows the new in-app update flow end to end."
 }

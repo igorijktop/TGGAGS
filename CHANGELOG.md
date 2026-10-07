@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0
+
+- Maintenance release (version bump) — also shows the new in-app update flow end to end.
+
 ## 1.1.0
 
 - **Conversation in the main window.** The chat is now the main window itself (permanent *Chat* tab); the side chat is optional (`Ctrl+Alt+B`).
