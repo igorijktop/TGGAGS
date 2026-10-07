@@ -39,6 +39,16 @@ VIAddVersionKey "LegalCopyright" "TGGAGS"
 
 !include "MUI2.nsh"
 !include "LogicLib.nsh"
+!include "FileFunc.nsh"
+
+; /UPDATE is passed by the in-app updater: only a progress bar is shown, the install folder and the optional extras the user
+; picked the first time are kept, and the app is started again when the installation is done.
+Var UpdateMode
+Function SkipIfUpdate
+  ${If} $UpdateMode == 1
+    Abort
+  ${EndIf}
+FunctionEnd
 
 !define MUI_ICON "${RES}\icon.ico"
 !define MUI_UNICON "${RES}\icon.ico"
@@ -53,11 +63,15 @@ VIAddVersionKey "LegalCopyright" "TGGAGS"
 !define MUI_FINISHPAGE_RUN_TEXT "$(STR_LAUNCH)"
 !define MUI_COMPONENTSPAGE_SMALLDESC
 
+!define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfUpdate
 !insertmacro MUI_PAGE_WELCOME
+!define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfUpdate
 !insertmacro MUI_PAGE_COMPONENTS
+!define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfUpdate
 !define MUI_PAGE_CUSTOMFUNCTION_LEAVE DirLeave
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
+!define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfUpdate
 !insertmacro MUI_PAGE_FINISH
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
@@ -102,10 +116,21 @@ FunctionEnd
 
 ; ───────── upgrade in place: silently remove a previous version first ─────────
 Function .onInit
+  ${GetParameters} $R2
+  ClearErrors
+  ${GetOptions} $R2 "/UPDATE" $R3
+  ${IfNot} ${Errors}
+    StrCpy $UpdateMode 1
+    SetAutoClose true
+  ${EndIf}
+  ClearErrors
   ReadRegStr $R0 HKCU "${UNINST_KEY}" "UninstallString"
   ReadRegStr $R1 HKCU "${UNINST_KEY}" "InstallLocation"
   ${If} $R0 != ""
   ${AndIf} $R1 != ""
+    ${If} $UpdateMode == 1
+      Call PrepareUpdate
+    ${EndIf}
     IfFileExists "$R1\Uninstall.exe" 0 done
     ExecWait '"$R1\Uninstall.exe" /S _?=$R1'
     Delete "$R1\Uninstall.exe"
@@ -182,3 +207,35 @@ Section "Uninstall"
   RMDir /r "$APPDATA\${PRODUCT}"
   skipdata:
 SectionEnd
+
+; ───────── update mode helpers (defined after the sections so their indexes are known) ─────────
+Function PrepareUpdate
+  ; the running app is on its way out: wait (up to ~20 s) until it has let go of its executable
+  StrCpy $R4 0
+  waitloop:
+    ClearErrors
+    FileOpen $R5 "$R1\${EXE}" a
+    ${IfNot} ${Errors}
+      FileClose $R5
+      Goto released
+    ${EndIf}
+    IntOp $R4 $R4 + 1
+    ${If} $R4 < 40
+      Sleep 500
+      Goto waitloop
+    ${EndIf}
+  released:
+  ; keep the optional extras exactly as the user chose them the first time (the old uninstaller removes them below)
+  IfFileExists "$DESKTOP\${PRODUCT}.lnk" +2 0
+    SectionSetFlags ${SecDesktop} 0
+  ReadRegStr $R6 HKCU "Software\Classes\*\shell\${APP_ID}" ""
+  ${If} $R6 == ""
+    SectionSetFlags ${SecContext} 0
+  ${EndIf}
+FunctionEnd
+
+Function .onInstSuccess
+  ${If} $UpdateMode == 1
+    Exec '"$INSTDIR\${EXE}"'
+  ${EndIf}
+FunctionEnd

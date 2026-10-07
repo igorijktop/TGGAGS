@@ -22,6 +22,16 @@ find "$WINEPREFIX/drive_c/users" -name "TGGAGS IDE.lnk" | grep -q Start && ok "S
 find "$WINEPREFIX/drive_c/users" -name "TGGAGS IDE.lnk" | grep -q Desktop && ok "desktop shortcut" || bad "desktop shortcut missing"
 xvfb-run -a "$WINE" reg query 'HKCU\Software\Classes\Directory\shell\TGGAGS-IDE\command' 2>/dev/null | grep -q "TGGAGS IDE.exe" && ok "Explorer context-menu entry" || bad "context-menu entry missing"
 
+echo "update (/UPDATE: progress only, keeps the install folder and the extras the user chose)"
+find "$WINEPREFIX/drive_c/users" -name "TGGAGS IDE.lnk" -path "*Desktop*" -delete  # this user did not want the desktop shortcut
+timeout 300 xvfb-run -a "$WINE" "$INSTALLER" /UPDATE >/dev/null 2>&1 || bad "the /UPDATE run failed or hung (it must close by itself)"
+"${WINE%/*}/wineserver" -k >/dev/null 2>&1 || true   # the restarted app is not needed here
+[ -f "$APP/TGGAGS IDE.exe" ] && [ -f "$APP/resources/app.asar" ] && ok "app files are back after the update" || bad "app files missing after the update"
+find "$WINEPREFIX/drive_c/users" -name "TGGAGS IDE.lnk" | grep -q Start && ok "Start menu shortcut kept" || bad "Start menu shortcut missing after update"
+find "$WINEPREFIX/drive_c/users" -name "TGGAGS IDE.lnk" | grep -q Desktop && bad "desktop shortcut came back although it was declined" || ok "declined desktop shortcut stays away"
+xvfb-run -a "$WINE" reg query 'HKCU\Software\Classes\Directory\shell\TGGAGS-IDE\command' 2>/dev/null | grep -q "TGGAGS IDE.exe" && ok "context-menu entry kept" || bad "context-menu entry lost in the update"
+xvfb-run -a "$WINE" reg query "$KEY" 2>/dev/null | grep -q "DisplayVersion" && ok "uninstall entry still registered" || bad "uninstall entry lost in the update"
+
 echo "uninstall"
 mkdir -p "$WINEPREFIX/drive_c/users/$USER/AppData/Roaming/TGGAGS IDE" && echo keep > "$WINEPREFIX/drive_c/users/$USER/AppData/Roaming/TGGAGS IDE/settings.json"
 xvfb-run -a "$WINE" "$APP/Uninstall.exe" /S "_?=C:\\users\\$USER\\AppData\\Local\\Programs\\TGGAGS IDE" >/dev/null 2>&1 || true

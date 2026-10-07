@@ -7,6 +7,7 @@ import { useWorkspace } from './stores/workspace'
 import { useEditor } from './stores/editor'
 import { useUi } from './stores/ui'
 import { useAi } from './stores/ai'
+import { useUpdate } from './stores/update'
 import { applyAppearance, applyTheme, setExtraThemes } from './lib/theme'
 import { defineMonacoTheme, monaco } from './lib/monaco'
 import { findTheme } from './lib/theme'
@@ -43,6 +44,7 @@ export function App() {
       await useWorkspace.getState().init()
       initGit(); initLspStatus(); initDebug(); initTerminals()
       await useAi.getState().init(); void useAi.getState().loadSessions()
+      void useUpdate.getState().init()
       installKeybindings()
       onEvent('app:open-path', p => { if (!p.isDir) void useEditor.getState().openFile(p.path, { pin: true }) })
       onEvent('ext:changed', () => { void api.extensions.themes().then(t => { setExtraThemes(t); applyThemeNow(useSettings.getState().settings.appearance.theme) }) })

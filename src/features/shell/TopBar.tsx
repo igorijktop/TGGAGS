@@ -6,6 +6,7 @@ import { useUi } from '../../stores/ui'
 import { useWorkspace } from '../../stores/workspace'
 import { IconButton, Menu } from '../../components/ui'
 import { buildMainMenu } from './menus'
+import { UpdateButton } from './UpdateButton'
 import { Badge } from '../../components/ui'
 
 export function TopBar() {
@@ -29,6 +30,7 @@ export function TopBar() {
         <span className="cc-hint kbd">{kb('palette.commands') ?? 'Ctrl+Shift+P'}</span>
       </div>
       <div className="tb-spacer" />
+      <UpdateButton />
       <IconButton icon={PanelBottom} tip="Toggle panel" kbd={kb('view.togglePanel')} active={ui.panelVisible} onClick={() => ui.togglePanel()} />
       <IconButton icon={PanelRight} tip="Toggle AI chat" kbd={kb('view.toggleAi')} active={ui.aiVisible} onClick={() => ui.toggleAi()} />
       <IconButton icon={Bell} tip="Notifications" dot={ui.notifications.length > 0 && Date.now() - (ui.notifications[0]?.ts ?? 0) < 60_000} onClick={() => runCommand('view.notifications')} />

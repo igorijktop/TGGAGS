@@ -12,6 +12,8 @@ import { useAi } from '../../stores/ai'
 import { useEditor } from '../../stores/editor'
 import { dialogs, toast } from '../../stores/ui'
 import { Logo } from '../../components/brand'
+import { useUpdate } from '../../stores/update'
+import { runCommand } from '../../lib/commands'
 import { ModelPicker, EFFORTS, MODES } from '../ai/Selectors'
 import { ThemeCard } from '../home/Onboarding'
 import { Group, NumberField, Row, Section, SelectField, Slider, TextArea, TextField, ToggleRow } from './rows'
@@ -234,11 +236,25 @@ function Privacy() {
   </Section>
 }
 
+function updateText(u: ReturnType<typeof useUpdate.getState>['state']): string {
+  if (!u) return ''
+  if (u.status === 'available' || u.status === 'ready') return `Version ${u.info.version} is available — use the Update button in the title bar.`
+  if (u.status === 'downloading') return 'Downloading the update…'
+  if (u.status === 'error') return u.message
+  return u.status === 'idle' && u.checkedAt ? `You have the latest version (${u.current}).` : `Version ${u.current}`
+}
+
 function About() {
+  const update = useUpdate(s => s.state)
+  const auto = useSettings(s => s.settings.updates?.autoCheck !== false)
   const [info, setInfo] = useState<AppInfo | null>(null)
   useEffect(() => { void api.app.info().then(setInfo) }, [])
   return <Section title="About" description="">
     <div className="card about"><Logo size={64} /><div><h3>TGGAGS</h3><div className="muted">An AI-powered code editor · version {info?.version ?? '…'}</div></div></div>
+    <Group title="Updates">
+      <Row title="Check for updates" description={updateText(update)}><Button size="sm" disabled={update?.status === 'checking' || update?.status === 'downloading'} onClick={() => runCommand('help.checkUpdates')}>{update?.status === 'checking' ? 'Checking…' : 'Check now'}</Button></Row>
+      <ToggleRow title="Check automatically" description="Looks for a newer version a few times a day and shows an Update button in the title bar. Nothing is installed without your click." value={auto} onChange={v => void useSettings.getState().update({ updates: { autoCheck: v } } as never)} />
+    </Group>
     <Group>
       <Row title="Electron">{info?.electron}</Row><Row title="Chromium">{info?.chrome}</Row><Row title="Node.js">{info?.node}</Row><Row title="Platform">{info ? `${info.platform} ${info.arch}` : ''}</Row>
     </Group>

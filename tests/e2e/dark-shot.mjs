@@ -10,7 +10,7 @@ const project = mkdtempSync(join(tmpdir(), 'tgg-proj-')); mkdirSync(join(project
 writeFileSync(join(project, 'package.json'), '{"name":"demo"}\n'); writeFileSync(join(project, 'src/index.js'), "console.log('hello')\n")
 execSync('git init -q && git add -A && git -c user.name=D -c user.email=d@e.co commit -q -m init', { cwd: project })
 const mock = await startMock({ delay: 1 })
-const { app, page } = await launchApp({ project, width: 1500, height: 940 })
+const { app, page } = await launchApp({ project, width: Number(process.env.E2E_W ?? 1500), height: Number(process.env.E2E_H ?? 940) })
 await page.waitForSelector('.app'); await page.waitForTimeout(1000)
 await page.evaluate(async ([url, theme]) => { await window.tgg.rpc('settings.update', [{ ui: { onboarded: true }, appearance: { theme }, providers: [{ id: 'mock', name: 'Mock AI', protocol: 'openai', baseUrl: url, requiresKey: false, enabled: true, models: [{ id: 'mock-model', name: 'Mock Model 1', modality: 'chat', contextWindow: 128000, tools: true, reasoning: true }] }], ai: { defaultModel: { provider: 'mock', model: 'mock-model' }, permissionMode: 'yolo' } }]) }, [mock.url, theme])
 await page.waitForTimeout(600)

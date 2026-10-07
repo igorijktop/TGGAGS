@@ -1,7 +1,7 @@
 {
   "name": "tggags-ide",
   "productName": "TGGAGS IDE",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A next-generation AI IDE: editor, coding agents, terminal, Git, debugger, LSP, MCP, image studio and more.",
   "author": "TGGAGS",
   "license": "MIT",

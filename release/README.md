@@ -8,6 +8,6 @@ It is fully offline: no download happens while installing or running the editor.
 * Silent install: `TGGAGS-IDE-Setup.exe /S` · silent uninstall: `"%LOCALAPPDATA%\Programs\TGGAGS IDE\Uninstall.exe" /S`
 * Not code-signed → SmartScreen may ask: *More info → Run anyway*
 
-SHA-256: `f1a2930cd0e7b231e56dd243fccf2df2ea17023a8c085abfaf14c5a8b1f8cf47`
+SHA-256: `ecdfc0b642eecb5b355d1c20bcf237119901c795b454eaa83b8a8ab09f1e36da`
 
 Rebuild it yourself: `npm ci && npm run installer:win` (needs `makensis`), or run the **Build Windows installer** workflow on GitHub.

@@ -15,7 +15,7 @@ writeFileSync(join(project, 'src/index.js'), "console.log('hello')\n")
 writeFileSync(join(project, 'README.md'), '# Demo app\n\nA tiny project used for screenshots.\n')
 
 const mock = await startMock()
-const { app, page } = await launchApp({ project, width: 1500, height: 940 })
+const { app, page } = await launchApp({ project, width: Number(process.env.E2E_W ?? 1500), height: Number(process.env.E2E_H ?? 940) })
 const shot = async name => { await page.screenshot({ path: join(out, name + '.png') }); console.log('shot', name) }
 try {
   await page.waitForSelector('.app', { timeout: 30000 })

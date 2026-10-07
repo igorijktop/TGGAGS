@@ -5,6 +5,7 @@ import { useEditor } from '../stores/editor'
 import { useWorkspace } from '../stores/workspace'
 import { useSettings } from '../stores/settings'
 import { useAi } from '../stores/ai'
+import { useUpdate } from '../stores/update'
 import { useGit } from '../stores/git'
 import { useDebug } from '../stores/debug'
 import { useTerminals } from '../stores/terminal'
@@ -181,6 +182,12 @@ export function registerAllCommands(): void {
     { id: 'bench.open', title: 'Benchmark Models', category: 'AI', run: () => ed().openPage('bench') },
     { id: 'images.open', title: 'Open Image Studio', category: 'AI', run: () => ed().openPage('images') },
     { id: 'home.open', title: 'Open Home / Welcome', category: 'Help', run: () => showChat() },
+    { id: 'help.checkUpdates', title: 'Check for Updates…', category: 'Help', run: async () => {
+      const s = await useUpdate.getState().check(true)
+      if (s.status === 'available') useUpdate.setState({ open: true })
+      else if (s.status === 'error') toast.error(s.message)
+      else toast.success(`You’re up to date — version ${s.current}.`)
+    } },
     { id: 'help.logs', title: 'Open Logs Folder', category: 'Help', run: () => void api.app.openLogs() },
     { id: 'help.userData', title: 'Open Data Folder', category: 'Help', run: () => void api.app.openUserData() },
     { id: 'help.about', title: 'About TGGAGS IDE', category: 'Help', run: async () => { const i = await api.app.info(); await dialogs.alert({ title: 'TGGAGS IDE', message: createElement('div', { className: 'col gap8' }, createElement('div', { className: 'row gap12' }, createElement(Logo, { size: 44 }), createElement('div', null, createElement('div', { style: { color: 'var(--fg)', fontWeight: 600, fontSize: 15 } }, `Version ${i.version}`), createElement('div', { className: 'small' }, 'An AI-native IDE: editor, agents, terminal, Git, debugger and more.'))), createElement('div', { className: 'small mono', style: { lineHeight: 1.7 } }, `Electron ${i.electron} · Chromium ${i.chrome} · Node ${i.node}\n${i.platform} ${i.arch} · ${i.secureStorage ? 'OS keychain secured keys' : 'basic key storage'}\nData: ${i.userData}`)) }) } }

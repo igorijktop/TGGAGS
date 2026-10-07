@@ -21,7 +21,7 @@ writeFileSync(join(project, 'src/index.js'), "console.log('hello')\n")
 execSync('git init -q && git add -A && git -c user.name=T -c user.email=t@example.com commit -q -m init', { cwd: project })
 
 const mock = await startMock({ delay: 1 })
-const { app, page } = await launchApp({ project, width: 1500, height: 940 })
+const { app, page } = await launchApp({ project, width: Number(process.env.E2E_W ?? 1500), height: Number(process.env.E2E_H ?? 940) })
 const problems = []
 page.on('pageerror', e => problems.push('pageerror: ' + e.message))
 page.on('console', m => { const t = m.text(); if (m.type() === 'error' && !/Failed to load resource/.test(t)) problems.push('console: ' + t); if (/Content Security Policy|Refused to/i.test(t)) problems.push('CSP: ' + t) })
@@ -48,7 +48,7 @@ try {
   expect(await page.locator('.main-col .home-hero').count() === 1, 'welcome screen with the message box in the main window'); await shot('home')
   const input = page.locator('.composer-input').first()
   await input.click(); await input.fill('Add a greet() helper to src/index.js and make sure it runs'); await page.keyboard.press('Enter')
-  await page.waitForSelector('.main-col .chat.page .tool', { timeout: 20000 }); log('the welcome screen turns into the conversation; tool cards stream in')
+  await page.waitForSelector('.main-col .chat.in-main .tool', { timeout: 20000 }); log('the welcome screen turns into the conversation; tool cards stream in')
   await page.waitForSelector('.sheet.perm', { timeout: 30000 }); log('the shell command asks for permission (auto-edit mode)')
   expect((await page.textContent('.sheet.perm')).includes('node src/index.js'), 'the sheet shows the command'); await shot('permission')
   await page.keyboard.press('Enter')
@@ -87,7 +87,7 @@ try {
   console.log('editor')
   await page.keyboard.press('Control+P'); await page.waitForSelector('.pal-input input:focus'); await page.keyboard.type('index.js'); await page.waitForTimeout(300); await page.keyboard.press('Enter')
   await page.waitForSelector('.monaco-editor', { timeout: 15000 }); log('files open in the editor')
-  await page.locator('.tab:has-text("Chat")').click(); await page.waitForSelector('.main-col .chat.page .turn-foot'); log('the Chat tab brings the conversation back'); await shot('back-to-chat')
+  await page.locator('.tab:has-text("Chat")').click(); await page.waitForSelector('.main-col .chat.in-main .turn-foot'); log('the Chat tab brings the conversation back'); await shot('back-to-chat')
   await page.keyboard.press('Control+Alt+B'); await page.locator('.tab:has-text("index.js")').click(); await page.waitForSelector('.ai-panel .chat'); log('the optional side chat appears beside the files')
   await page.keyboard.press('Control+Alt+B')
 

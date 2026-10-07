@@ -21,7 +21,7 @@
 .sess-row:hover .sess-del { display: inline-flex; } .sess-row:hover .sess-time { visibility: hidden; } .sess-del:hover { color: var(--danger); }
 
 /* ───────────── home ───────────── */
-.home { max-width: 760px; margin: 0 auto; padding: 7vh 28px 56px; display: flex; flex-direction: column; gap: 18px; }
+.home { max-width: 880px; margin: 0 auto; padding: 7vh 28px 56px; display: flex; flex-direction: column; gap: 18px; }
 .home-hero { display: flex; align-items: center; gap: 22px; margin-bottom: 6px; }
 .home-hero h1 { font-size: 36px; font-weight: 500; line-height: 1.18; letter-spacing: -.02em; }
 .home-hero h1 span { color: var(--fg-muted); }

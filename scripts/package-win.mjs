@@ -160,5 +160,14 @@ run(makensis, ['-V2', `-DVERSION=${pkgJson.version}`, `-DPRODUCT=${PRODUCT}`, `-
 const bytes = readFileSync(outFile)
 writeFileSync(outFile + '.sha256', `${createHash('sha256').update(bytes).digest('hex')}  ${'TGGAGS-IDE-Setup.exe'}\n`)
 log('installer:', outFile, mb(bytes.length))
+
+// release/latest.json is what installed apps look at to offer the "Update" button: version, checksum and the notes for this version.
+const sha = createHash('sha256').update(bytes).digest('hex')
+const changelog = existsSync('CHANGELOG.md') ? readFileSync('CHANGELOG.md', 'utf8') : ''
+const section = new RegExp(`^## \\[?v?${pkgJson.version.replace(/\./g, '\\.')}\\]?[^\\n]*\\n([\\s\\S]*?)(?=^## |$(?![\\s\\S]))`, 'm').exec(changelog)
+writeFileSync(join(dirname(outFile), 'latest.json'), JSON.stringify({ version: pkgJson.version, file: 'TGGAGS-IDE-Setup.exe', sha256: sha, size: bytes.length, date: new Date().toISOString().slice(0, 10), notes: (section?.[1] ?? '').trim() }, null, 2) + '\n')
+const readme = join(dirname(outFile), 'README.md')
+if (existsSync(readme)) writeFileSync(readme, readFileSync(readme, 'utf8').replace(/SHA-256: `[0-9a-f]{64}`/, `SHA-256: \`${sha}\``).replace(/\(about [\d.]+ MiB\)/, `(about ${(bytes.length / 1048576).toFixed(0)} MiB)`))
+log('update manifest: release/latest.json', pkgJson.version)
 if (bytes.length > 98 * 1048576) console.warn('! The installer is larger than GitHub’s 100 MiB per-file limit – publish it as a release asset instead of committing it.')
 void renameSync

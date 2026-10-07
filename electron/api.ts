@@ -10,6 +10,7 @@ import { log } from './services/log'
 import { dataPath, userDir } from './services/paths'
 import { defaultShell } from './services/proc'
 import { mainWindow } from './window'
+import { updater } from './services/updater'
 import { themeById } from '../shared/themes'
 import { terminals } from './dev/terminal'
 import { gitApi } from './dev/git'
@@ -43,6 +44,18 @@ export function buildApi(): Api {
       async quit() { app.quit() },
       async openUserData() { await shell.openPath(userDir()) },
       async openLogs() { await shell.openPath(dataPath('logs')) }
+    },
+    updates: {
+      async state() { return updater.state() },
+      async check(manual) { return updater.check(!!manual) },
+      async download() { return updater.download() },
+      async cancel() { updater.cancel() },
+      async install() {
+        const r = updater.install()
+        // give the installer a moment to start, then quit gracefully (settings and chats are flushed on quit) — it waits for the app to let go of its files
+        if (r === 'launched') { setTimeout(() => app.quit(), 400); setTimeout(() => app.exit(0), 6000).unref() }
+        return r
+      }
     },
     window: {
       async minimize() { win().minimize() },

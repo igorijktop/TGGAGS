@@ -9,6 +9,7 @@ import type {
   AiEvent, CommandInfo, ContextItem, ContextSnapshot, FileChange, MemoryState, PermissionReply, PermissionRequest, QuestionReply, QuestionRequest,
   SendRequest, Session, SessionMeta, SkillInfo, ToolInfo, UsageStats
 } from './ai'
+import type { UpdateState } from './update'
 import type { FileEntry, ReadFileResult, SearchOptions, SearchResult } from './fs'
 
 export interface AppInfo {
@@ -26,6 +27,17 @@ export interface AppApi {
   quit(): Promise<void>
   openUserData(): Promise<void>
   openLogs(): Promise<void>
+}
+
+export interface UpdatesApi {
+  state(): Promise<UpdateState>
+  /** `manual` shows the spinner and reports errors; background checks stay silent */
+  check(manual?: boolean): Promise<UpdateState>
+  /** downloads and verifies the installer; resolves with the final state */
+  download(): Promise<UpdateState>
+  cancel(): Promise<void>
+  /** starts the installer and quits the app (Windows); elsewhere reveals the downloaded file */
+  install(): Promise<'launched' | 'revealed'>
 }
 
 export interface WindowApi {
@@ -109,6 +121,7 @@ export interface TerminalApi {
 
 export interface Api {
   app: AppApi
+  updates: UpdatesApi
   window: WindowApi
   settings: SettingsApi
   credentials: CredentialsApi
@@ -138,6 +151,7 @@ export interface Api {
 
 export interface EventMap {
   'settings:changed': Settings
+  'update:state': UpdateState
   'workspace:changed': WorkspaceInfo
   'fs:changed': { root: string; events: FsChange[] }
   'git:changed': { root: string }

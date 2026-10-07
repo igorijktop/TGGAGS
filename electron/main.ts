@@ -1,3 +1,4 @@
+import { startUpdateChecks } from './services/updater'
 import { app, protocol, net, Menu, BrowserWindow } from 'electron'
 import { existsSync, statSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
@@ -61,6 +62,7 @@ app.whenReady().then(async () => {
   bootAi()
   registerRpc(buildApi())
   const win = createMainWindow()
+  startUpdateChecks()
 
   win.webContents.once('did-finish-load', async () => {
     const cli = cliPath(process.argv)

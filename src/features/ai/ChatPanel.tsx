@@ -285,7 +285,7 @@ export function ChatPanel({ variant = 'side' }: { variant?: 'side' | 'page' }) {
 
   const lastTurn = turns[turns.length - 1]
   return (
-    <div className={cn('chat', page && 'page')}>
+    <div className={cn('chat', page && 'in-main')}>
       <Header session={session} page={page} />
       <div className="chat-scroll" ref={scroller} onScroll={onScroll}>
         {turns.length === 0 ? (page && running ? <div className="chat-col"><StatusLine sessionId={active!} /></div> : <EmptyChat />) : <div className="chat-col">

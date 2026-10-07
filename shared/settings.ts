@@ -186,6 +186,8 @@ export interface Settings {
   github: { enabled: boolean }
   images: { defaultModel: ModelRef | null; saveToProject: boolean }
   extensions: { disabled: string[]; registryUrl: string }
+  /** autoCheck: look for a newer release in the background · manifestUrl: advanced override of where `latest.json` is fetched from */
+  updates: { autoCheck: boolean; manifestUrl: string }
   keybindings: Record<string, string>
   /** Persisted UI state that should survive restarts */
   ui: {
@@ -303,6 +305,7 @@ export function defaultSettings(): Settings {
     github: { enabled: true },
     images: { defaultModel: null, saveToProject: false },
     extensions: { disabled: [], registryUrl: '' },
+    updates: { autoCheck: true, manifestUrl: '' },
     keybindings: {},
     ui: {
       sidebarWidth: 290, aiPanelWidth: 440, panelHeight: 280, sidebarVisible: true, aiPanelVisible: false, panelVisible: false,

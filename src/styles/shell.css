@@ -131,3 +131,13 @@ button.status-item:hover { background: var(--bg-hover); color: var(--fg); }
 .ol-t { color: var(--fg-subtle); margin-right: 10px; font-size: 11px; }
 .ol.error, .ol.stderr { color: var(--danger); } .ol.warn { color: var(--warning); } .ol.info { color: var(--info); } .ol.input { color: var(--accent-text); } .ol.result { color: var(--success); }
 .dbg-input { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-top: 1px solid var(--border); flex-shrink: 0; } .dbg-input input { flex: 1; border: 0; outline: none; background: none; font-family: var(--font-mono); font-size: 12px; }
+
+/* ───────────── update button ───────────── */
+.update-wrap { display: inline-flex; margin-right: 6px; }
+.update-btn { border-radius: 14px; padding: 0 12px; background-image: linear-gradient(90deg, rgba(255,255,255,.3) var(--p, 0%), transparent var(--p, 0%)); }
+.update-pop { display: flex; flex-direction: column; gap: 12px; padding: 14px; }
+.up-head { display: flex; gap: 12px; align-items: center; } .up-head > svg { color: var(--accent-text); flex-shrink: 0; }
+.up-notes { max-height: 220px; overflow: auto; padding: 10px 12px; border-radius: 10px; background: var(--bg-sidebar); border: 1px solid var(--border); }
+.up-notes .msg-text { font-size: 13px; line-height: 1.55; }
+.up-progress { height: 6px; border-radius: 3px; background: var(--bg-hover); overflow: hidden; } .up-progress i { display: block; height: 100%; background: var(--accent); transition: width .2s; }
+.up-actions { display: flex; gap: 8px; }

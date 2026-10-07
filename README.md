@@ -21,6 +21,8 @@ The installer is per-user (no administrator rights needed), supports English and
 
 > **Windows SmartScreen:** the installer is not code-signed (certificates cost money). If Windows says *“Windows protected your PC”*, choose **More info → Run anyway**. You can verify the download with `TGGAGS-IDE-Setup.exe.sha256`.
 
+**Updates:** when a newer version is published in this repository, an **Update** button appears in the title bar (or use *Help → Check for Updates…*). One click downloads the installer, verifies its checksum, installs it in place — settings, chats and projects are kept — and restarts the app. You can turn the automatic check off in *Settings → About*. (Installations of 1.0.0 predate the updater: install 1.1.0 once by hand, from then on updates come by themselves.)
+
 You only need internet access for the things that are online by nature: talking to a cloud AI provider, web search/fetch tools, GitHub. With a local model (Ollama, LM Studio, llama.cpp, Stable Diffusion WebUI) everything works fully offline.
 
 ## What you get

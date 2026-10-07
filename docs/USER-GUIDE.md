@@ -48,6 +48,10 @@ In *Models → your provider* add models by ID and pick **Text** or **Image** (t
 
 *Images* opens the studio: describe a picture, edit one by painting over the part to change, make variations, upscale, describe it or read the text in it. Everything lands in the library.
 
+## Updates
+
+When a newer version exists, a blue **Update** button appears in the title bar. Click it to see what is new, then **Update now**: the installer is downloaded (with progress), its SHA-256 checksum is verified, and the app restarts into the new version — unsaved files are saved first and a running agent task is only stopped after you confirm. *Help → Check for Updates…* checks on demand; *Settings → About* turns the automatic check off. Releases are announced by `release/latest.json` in the repository; maintainers publish one by running `npm run installer:win` (it writes the manifest with the notes from `CHANGELOG.md`) and committing `release/`.
+
 ## Settings worth knowing
 
 * **Appearance** — theme, chat font (serif / sans / mono), interface size.
